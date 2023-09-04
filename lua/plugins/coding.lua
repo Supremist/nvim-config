@@ -41,6 +41,7 @@ return {
       vim.api.nvim_set_hl(0, "CmpGhostText", { link = "Comment", default = true })
       local cmp = require("cmp")
       local defaults = require("cmp.config.default")()
+	  table.insert(defaults.sorting.comparators, 1, require("clangd_extensions.cmp_scores"))
       return {
         completion = {
           completeopt = "menu,menuone,noinsert",

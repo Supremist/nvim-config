@@ -1,4 +1,35 @@
+local clangd_ext = {
+  "p00f/clangd_extensions.nvim",
+  opts = {
+    inlay_hints = {
+      inline = false,
+    },
+    ast = {
+      --These require codicons (https://github.com/microsoft/vscode-codicons)
+      role_icons = {
+        type = "",
+        declaration = "",
+        expression = "",
+        specifier = "",
+        statement = "",
+        ["template argument"] = "",
+      },
+      kind_icons = {
+        Compound = "",
+        Recovery = "",
+        TranslationUnit = "",
+        PackExpansion = "",
+        TemplateTypeParm = "",
+        TemplateTemplateParm = "",
+        TemplateParamObject = "",
+      },
+    },
+  },
+}
+
 return {
+  clangd_ext,
+
   -- lspconfig
   {
     "neovim/nvim-lspconfig",
@@ -67,7 +98,44 @@ return {
             },
           },
         },
+
+        clangd = {
+          keys = {
+            { "<leader>cR", "<cmd>ClangdSwitchSourceHeader<cr>", desc = "Switch Source/Header (C/C++)" },
+          },
+          root_dir = function(fname)
+            return require("lspconfig.util").root_pattern(
+              "Makefile",
+              "configure.ac",
+              "configure.in",
+              "config.h.in",
+              "meson.build",
+              "meson_options.txt",
+              "build.ninja"
+            )(fname) or require("lspconfig.util").root_pattern("compile_commands.json", "compile_flags.txt")(
+              fname
+            ) or require("lspconfig.util").find_git_ancestor(fname)
+          end,
+          capabilities = {
+            offsetEncoding = { "utf-16" },
+          },
+          cmd = {
+            "clangd",
+            "--background-index",
+            "--clang-tidy",
+            "--header-insertion=iwyu",
+            "--completion-style=detailed",
+            "--function-arg-placeholders",
+            "--fallback-style=llvm",
+          },
+          init_options = {
+            usePlaceholders = true,
+            completeUnimported = true,
+            clangdFileStatus = true,
+          },
+        },
       },
+
       -- you can do any additional lsp server setup here
       -- return true if you don't want this server to be setup with lspconfig
       ---@type table<string, fun(server:string, opts:_.lspconfig.options):boolean?>
@@ -79,6 +147,11 @@ return {
         -- end,
         -- Specify * to use this function as a fallback for any server
         -- ["*"] = function(server, opts) end,
+
+        clangd = function(_, opts)
+          require("clangd_extensions").setup(vim.tbl_deep_extend("force", clangd_ext.opts, { server = opts }))
+          return false
+        end,
       },
     },
     ---@param opts PluginLspOpts
@@ -125,5 +198,4 @@ return {
 
     end,
   },
-  -- {},
 }
