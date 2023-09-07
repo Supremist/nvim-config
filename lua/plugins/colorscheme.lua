@@ -24,7 +24,7 @@ return {
         -- Available plugins:
         -- "dap",
         -- "dashboard",
-        -- "gitsigns",
+         "gitsigns",
         -- "hop",
         -- "indent-blankline",
         -- "lspsaga",
@@ -34,11 +34,11 @@ return {
         "nvim-cmp",
         -- "nvim-navic",
         -- "nvim-tree",
-        -- "nvim-web-devicons",
+         "nvim-web-devicons",
         -- "sneak",
-        -- "telescope",
+         "telescope",
         -- "trouble",
-        -- "which-key",
+         "which-key",
       },
 	},
     config = function() 
