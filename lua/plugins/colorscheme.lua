@@ -9,16 +9,16 @@ return {
 	end
   },
   
-  {
-    "folke/tokyonight.nvim",
-    --lazy = false,
-    --priority = 1000,
-    opts = {},
-  },
+  -- {
+    -- "folke/tokyonight.nvim",
+    -- -- lazy = false,
+    -- -- priority = 1000,
+    -- opts = {},
+  -- },
   {
     "marko-cerovac/material.nvim",
-    lazy = false,
-    priority = 1000,
+    -- lazy = false,
+    -- priority = 1000,
 	opts = {
 	  plugins = { -- Uncomment the plugins that you use to highlight them
         -- Available plugins:
@@ -47,4 +47,12 @@ return {
 	  vim.cmd([[colorscheme material]])
 	end
   },
+  
+  { "NvChad/nvim-colorizer.lua",
+    lazy = false,
+	opts = {
+	  filetypes = { "*" },
+	}
+  },
+  
 }
