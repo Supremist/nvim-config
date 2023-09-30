@@ -60,6 +60,6 @@ require("lazy").setup({
 vim.api.nvim_create_autocmd("User", {
  pattern = "VeryLazy",
  callback = function()
-  require("custom.theme").setup()
+  -- require("theme").setup()
  end,
 })
