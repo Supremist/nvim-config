@@ -98,28 +98,10 @@ function M.extract_highlights()
   return hl_groups
 end
 
-function M.save_hl_digraph()
-  local file,err = io.open("highlights.txt",'w')
-  if not file then
-    print("error:", err) -- not so hard?
-    return
-  end
-  local groups = M.extract_highlights()
-  file:write("digraph Highlights {\n")
-  vim.print(groups)
-  for name, val in pairs(groups) do
-    if val.link then
-	  file:write(string.format("  %q -> %q;\n", val.link, name))
-	end
-  end
-  file:write("}\n")
-  file:close()
-end
-
 function M.save_hl_xml()
  local file,err = io.open("highlights.xml",'w')
   if not file then
-    print("error:", err) -- not so hard?
+    print("error:", err)
     return
   end
   local groups = M.extract_highlights()
@@ -132,27 +114,51 @@ function M.save_hl_xml()
 	end
   end
   local visited = {}
+  local order = {}
+  
+  local function visit_node(node)
+    if visited[node] then return end
+	visited[node] = true
+	for _, v in ipairs(tree[node] or {}) do visit_node(v) end
+	table.insert(order, 1, node)
+  end
+  
   local function print_node(node, level)
     if visited[node] then return end
 	visited[node] = true
-	local name = string.gsub(node, "@", "AT")
+	
+	local name = string.gsub(node, "@", "AT_")
 	for i = 0, level, 1 do file:write("  ") end
-    file:write(string.format("<%s>\n", name))
-	for _, v in ipairs(tree[node] or {}) do
-	  print_node(v, level+1)
+	if tree[node] then
+      file:write(string.format("<%s>\n", name))
+	  for _, v in ipairs(tree[node]) do print_node(v, level+1) end
+	  for i = 0, level, 1 do file:write("  ") end
+	  file:write(string.format("</%s>\n", name))
+	else
+	  file:write(string.format("<%s/>\n", name))
 	end
-	for i = 0, level, 1 do file:write("  ") end
-	file:write(string.format("</%s>\n", name))
   end
-  file:write("<highlights>\n")
+  
   for name, children in pairs(tree) do
-    print_node(name, 1)
+    visit_node(name)
   end
+  
+  visited = {}
+  file:write("<highlights>\n")
+  for _, node in ipairs(order) do
+	print_node(node, 0)
+  end
+  file:write("\n")
+  for name, val in pairs(groups) do
+    if not val.link and not visited[name] then
+	  print_node(name, 0)
+	end
+  end
+
   file:write("</highlights>")
   file:close()
 end
-
-
+  
 function M.setup(opts)
   local hi = function (name, opts) 
     vim.api.nvim_set_hl(0, name, opts)
