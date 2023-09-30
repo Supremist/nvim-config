@@ -48,46 +48,6 @@ return {
 	end
   },
   
-  -- { "nightfox.nvim",
-    -- dir = "D:/workspace/nightfox.nvim",
-    -- lazy = false,
-	-- priority = 1000,
-	-- config = function() 
-	  -- vim.o.background = "dark"
-	  -- vim.cmd([[colorscheme carbonfox]])
-	-- end
-  -- },
-  
-  -- { "myfox",
-    -- dir = "D:/workspace/myfox",
-    -- lazy = false,
-	-- priority = 1001,
-	-- config = function() 
-	  -- -- vim.o.background = "dark"
-	  -- -- vim.cmd([[colorscheme tomorrow-night]])
-	-- end
-  -- },
-  
-  {"EdenEast/nightfox.nvim",
-    lazy = false,
-    priority = 1000,
-	opts = function(plug, opts)
-	  local C = require("nightfox.lib.color")
-      local Shade = require("nightfox.lib.shade")
-	  return {
-	    palettes = {
-	      carbonfox = {
-		    bg1 = "#ff0000"
-		  }
-	    }
-	  }
-	end,
-	config = function(plugin, opts)
-	  require("nightfox").setup(opts)
-	  vim.cmd([[colorscheme carbonfox]])
-	end,
-  },
-  
   { "NvChad/nvim-colorizer.lua",
     lazy = false,
 	opts = {
