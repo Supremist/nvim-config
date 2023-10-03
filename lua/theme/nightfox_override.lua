@@ -4,21 +4,21 @@ local Shade = require("nightfox.lib.shade")
 
 local M = {}
 
-local bg = C("#161616")
+local bg = C("#1d1f21")
 local fg = C("#f2f4f8")
 
 -- stylua: ignore
 local pal = {
   black   = Shade.new("#282828", 0.15, -0.15),
-  red     = Shade.new("#EE5396", 0.15, -0.15),
-  green   = Shade.new("#25be6a", 0.15, -0.15), -- #25be6a or #42BE65
-  yellow  = Shade.new("#08BDBA", 0.15, -0.15),
-  blue    = Shade.new("#78A9FF", 0.15, -0.15),
-  magenta = Shade.new("#BE95FF", 0.15, -0.15),
-  cyan    = Shade.new("#33B1FF", 0.15, -0.15),
+  red     = Shade.new("#cc6666", 0.15, -0.15),
+  green   = Shade.new("#b5bd68", 0.15, -0.15), -- #25be6a or #42BE65
+  yellow  = Shade.new("#f0c674", 0.15, -0.15),
+  blue    = Shade.new("#81a2be", 0.15, -0.15),
+  magenta = Shade.new("#b294bb", 0.15, -0.15),
+  cyan    = Shade.new("#8abeb7", 0.15, -0.15),
   white   = Shade.new("#dfdfe0", 0.15, -0.15),
-  orange  = Shade.new("#3DDBD9", 0.15, -0.15),
-  pink    = Shade.new("#FF7EB6", 0.15, -0.15),
+  orange  = Shade.new("#de935f", 0.15, -0.15),
+  pink    = Shade.new("#a3685a", 0.15, -0.15),
 
   comment = bg:blend(fg, 0.4):to_css(),
 
@@ -62,27 +62,29 @@ spec.syntax = {
   builtin1    = pal.cyan.bright,    -- Builtin type
   builtin2    = pal.orange.bright,  -- Builtin const
   builtin3    = pal.red.bright,     -- Not used
+  namespace   = pal.magenta.bright,
+  delimiter   = pal.pink.base,
   comment     = pal.comment,        -- Comment
-  conditional = pal.magenta.bright, -- Conditional and loop
+  conditional = pal.orange.base, -- Conditional and loop
   const       = pal.orange.bright,  -- Constants, imports and booleans
   dep         = spec.fg3,           -- Deprecated
   field       = pal.blue.base,      -- Field
   func        = pal.blue.bright,    -- Functions and Titles
   ident       = pal.cyan.base,      -- Identifiers
-  keyword     = pal.magenta.base,   -- Keywords
-  number      = pal.orange.base,    -- Numbers
+  keyword     = pal.orange.base,   -- Keywords
+  number      = pal.cyan.base,    -- Numbers
   operator    = spec.fg2,           -- Operators
-  preproc     = pal.pink.bright,    -- PreProc
+  preproc     = pal.blue.base,    -- PreProc
   regex       = pal.yellow.bright,  -- Regex
-  statement   = pal.magenta.base,   -- Statements
+  statement   = pal.pink.base,   -- Statements
   string      = pal.green.base,     -- Strings
-  type        = pal.yellow.base,    -- Types
+  type        = pal.magenta.base,    -- Types
   variable    = pal.white.base,     -- Variables
 }
 
 spec.diag = {
   error = pal.red.base,
-  warn  = pal.magenta.base,
+  warn  = pal.yellow.base,
   info  = pal.blue.base,
   hint  = pal.orange.base,
 }
@@ -109,7 +111,10 @@ spec.git = {
   ignored  = pal.comment,
 }
 
-local group = {}
+local group = {
+  ["@namespace"] = {fg = spec.namespace },
+  ["@tag.delimiter"] = {fg = spec.delimiter},
+}
 
   -- stylua: ignore stop
 
