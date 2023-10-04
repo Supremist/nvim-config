@@ -2,6 +2,64 @@ local M = {}
 
 local color_params = {"fg", "bg", "sp", "ctermfg", "ctermbg"}
 
+function rgb2hex(rgb)
+    local value = (rgb.r * 0x10000) + (rgb.g * 0x100) + rgb.b
+    return string.format("#%06x", value)
+end
+
+function hex2rgb(hex)
+   hex = hex:gsub("#","")
+   local f = hex:len() == 3 and 17 or 1
+   return {
+     r = f*tonumber("0x"..hex:sub(1,2)), 
+     g = f*tonumber("0x"..hex:sub(3,4)),
+	 b = f*tonumber("0x"..hex:sub(5,6)),
+  }
+end
+
+function M.load_colors(filter)
+  -- Colors file from https://github.com/codebrainz/color-names
+  -- contains color names with rgb values
+  local dir = "c:/Users/sergk/AppData/Local/nvim/lua/theme/"
+  local file, err = io.open(dir .. "colors.csv", "r")
+  if not file then
+    print("error:", err)
+    return
+  end
+  
+  filter = filter or function() return true end
+  local colors = {}
+  for line in file:lines() do
+    local res = vim.split(line, ",")
+	local name = res[1]
+	-- local desc = res[2]
+	-- local hes = res[3]
+	local rgb = {r = res[4], g = res[5], b = res[6]}
+	if filter(name, rgb) then
+	  colors[name] = rgb
+	end
+  end
+  file:close()
+  return colors
+end
+
+function M.find_color_name(colors, rgb)
+  local function dist_fn(other)
+    local r, g, b = other.r-rgb.r, other.g-rgb.g, other.b-rgb.b
+    return r*r + g*g + b*b
+  end
+  local min_dist = 3*256*256
+  local min_name = nil
+  for name, color in pairs(colors) do
+    local dist = dist_fn(color)
+    if dist < min_dist then
+	  min_dist = dist
+	  min_name = name
+	end
+  end
+  return min_name
+end
+
 local function add_attrs(attrs, attr_str)
   for _, attr in ipairs(vim.split(attr_str, ",")) do
     attrs[attr] = true
@@ -56,7 +114,7 @@ function M.extract_highlights()
   return hl_groups
 end
 
-function M.parse_hl_tree(hl_groups, palette)
+function M.parse_hl_tree(hl_groups, palette, colors)
   palette = palette or {}
   local tree = {}
   local function add_link(from, to)
@@ -76,7 +134,7 @@ function M.parse_hl_tree(hl_groups, palette)
 		  if palette[color_val] then
 		    color_name = palette[color_val]
 		  else
-		    color_name = color_val:sub(1,1) == "#" and "cl_" .. color_val:sub(2,-1) or color_val
+		    color_name = color_val:sub(1,1) == "#" and M.find_color_name(colors, hex2rgb(color_val)) or color_val
 			palette[color_val] = color_name
 		  end
 		  if not has_link then
@@ -92,12 +150,13 @@ end
 
 function M.save_theme(hl_groups, palette)
   palette = palette or {}
+  local colors = M.load_colors()
   local file,err = io.open("theme.lua",'w')
   if not file then
     print("error:", err)
     return
   end
-  local tree = M.parse_hl_tree(hl_groups, palette)
+  local tree = M.parse_hl_tree(hl_groups, palette, colors)
   local stack = {}
   local visited = {}
   file:write("local p = { -- palette\n")
