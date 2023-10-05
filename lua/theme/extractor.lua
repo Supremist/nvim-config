@@ -2,64 +2,6 @@ local M = {}
 
 local color_params = {"fg", "bg", "sp", "ctermfg", "ctermbg"}
 
-function rgb2hex(rgb)
-    local value = (rgb.r * 0x10000) + (rgb.g * 0x100) + rgb.b
-    return string.format("#%06x", value)
-end
-
-function hex2rgb(hex)
-   hex = hex:gsub("#","")
-   local f = hex:len() == 3 and 17 or 1
-   return {
-     r = f*tonumber("0x"..hex:sub(1,2)), 
-     g = f*tonumber("0x"..hex:sub(3,4)),
-	 b = f*tonumber("0x"..hex:sub(5,6)),
-  }
-end
-
-function M.load_colors(filter)
-  -- Colors file from https://github.com/codebrainz/color-names
-  -- contains color names with rgb values
-  local dir = "c:/Users/sergk/AppData/Local/nvim/lua/theme/"
-  local file, err = io.open(dir .. "colors.csv", "r")
-  if not file then
-    print("error:", err)
-    return
-  end
-  
-  filter = filter or function() return true end
-  local colors = {}
-  for line in file:lines() do
-    local res = vim.split(line, ",")
-	local name = res[1]
-	-- local desc = res[2]
-	-- local hes = res[3]
-	local rgb = {r = res[4], g = res[5], b = res[6]}
-	if filter(name, rgb) then
-	  colors[name] = rgb
-	end
-  end
-  file:close()
-  return colors
-end
-
-function M.find_color_name(colors, rgb)
-  local function dist_fn(other)
-    local r, g, b = other.r-rgb.r, other.g-rgb.g, other.b-rgb.b
-    return r*r + g*g + b*b
-  end
-  local min_dist = 3*256*256
-  local min_name = nil
-  for name, color in pairs(colors) do
-    local dist = dist_fn(color)
-    if dist < min_dist then
-	  min_dist = dist
-	  min_name = name
-	end
-  end
-  return min_name
-end
-
 local function add_attrs(attrs, attr_str)
   for _, attr in ipairs(vim.split(attr_str, ",")) do
     attrs[attr] = true
@@ -114,9 +56,9 @@ function M.extract_highlights()
   return hl_groups
 end
 
-function M.parse_hl_tree(hl_groups, palette, colors)
-  palette = palette or {}
+function M.parse_hl_tree(hl_groups)
   local tree = {}
+  local palette = {}
   local function add_link(from, to)
     if not tree[from] then tree[from] = {} end
 	table.insert(tree[from], to)
@@ -128,43 +70,38 @@ function M.parse_hl_tree(hl_groups, palette, colors)
 	  has_link = true
 	else
       for _, color_param in ipairs(color_params) do
-	    if val[color_param] then
-		  local color_val = val[color_param]
-		  local color_name = ""
-		  if palette[color_val] then
-		    color_name = palette[color_val]
-		  else
-		    color_name = color_val:sub(1,1) == "#" and M.find_color_name(colors, hex2rgb(color_val)) or color_val
-			palette[color_val] = color_name
-		  end
+	    local color_val = val[color_param]
+	    if color_val then
+		  palette[color_val] = true
 		  if not has_link then
-	        add_link(color_name, name)
+	        add_link(color_val, name)
 		    has_link = true
 		  end
 	    end
 	  end
 	end
   end
-  return tree
+  return tree, palette
 end
 
-function M.save_theme(hl_groups, palette)
-  palette = palette or {}
-  local colors = M.load_colors()
+function M.save_theme(hl_groups)
+  local colors = require("theme.colors")
+  colors.load()
   local file,err = io.open("theme.lua",'w')
   if not file then
     print("error:", err)
     return
   end
-  local tree = M.parse_hl_tree(hl_groups, palette, colors)
+  local tree, palette = M.parse_hl_tree(hl_groups)
+  palette = colors.generate_names(palette)
   local stack = {}
   local visited = {}
   file:write("local p = { -- palette\n")
   for color, name in pairs(palette) do
     if name ~= color then
       file:write(string.format('  %s = "%s",\n', name, color))
-      table.insert(stack, name)
 	end
+	table.insert(stack, color)
   end
   file:write("} -- palette\nlocal g = { -- highlight groups\n")
   local level_count = #stack
@@ -174,14 +111,19 @@ function M.save_theme(hl_groups, palette)
     local top = stack[1]
 	table.remove(stack, 1)
 	level_count = level_count-1
-	if not visited[top] then
+	if top:sub(1,2) == "--" then
+	  file:write(" ", top, "\n")
+	elseif not visited[top] then
 	  visited[top] = true
 	  local hl = hl_groups[top]
 	  if hl then
 	    file:write(string.format('["%s"] = %s,\n', top, vim.inspect(hl):gsub("\n", "")))
 	  end
-	  for _, child in ipairs(tree[top] or {}) do
-	    table.insert(stack, child)
+	  if tree[top] then
+	    table.insert(stack, "-- "..top)
+	    for _, child in ipairs(tree[top]) do
+	      table.insert(stack, child)
+	    end
 	  end
 	end
 	if level_count == 0 then
@@ -206,9 +148,7 @@ function M.save_hl_xml()
     return
   end
   local groups = M.extract_highlights()
-  local palette = {}
-  local tree = M.parse_hl_tree(groups, palette)
-  vim.print(palette)
+  local tree, palette = M.parse_hl_tree(groups)
   local visited = {}
   local order = {}
   
