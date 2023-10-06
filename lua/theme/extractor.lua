@@ -81,6 +81,16 @@ function M.parse_hl_tree(hl_groups)
 	  end
 	end
   end
+  palette = require("theme.colors").generate_names(palette)
+  tree.ROOT = {}
+  for color, name in pairs(palette) do
+    tree[name] = tree[color]
+	tree[color] = nil
+	table.insert(tree.ROOT, name)
+  end
+  for name, children in pairs(tree) do
+    table.sort(children)
+  end
   return tree, palette
 end
 
@@ -93,17 +103,21 @@ function M.save_theme(hl_groups)
     return
   end
   local tree, palette = M.parse_hl_tree(hl_groups)
-  palette = colors.generate_names(palette)
   local stack = {}
   local visited = {}
-  file:write("local p = { -- palette\n")
+  local color_by_name = {}
   for color, name in pairs(palette) do
+    color_by_name[name] = color
+  end
+  file:write("local p = { -- palette\n")
+  for _, name in ipairs(tree.ROOT) do
+    local color = color_by_name[name]
     if name ~= color then
       file:write(string.format('  %s = "%s",\n', name, color))
 	end
-	table.insert(stack, color)
+	table.insert(stack, name)
   end
-  file:write("} -- palette\nlocal g = { -- highlight groups\n")
+  file:write("} -- palette\nlocal highlights = {\n")
   local level_count = #stack
   local level = 0
   file:write(" -- Level", level, " contains ", level_count, " groups\n")
