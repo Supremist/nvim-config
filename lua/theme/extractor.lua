@@ -147,13 +147,45 @@ function M.save_theme(hl_groups)
   end
   file:write("} -- palette\n\nlocal highlights = {\n")
   
+  local name_by_color = invert_table(hl.palette)
+  function print_name(name)
+    return name:sub(1,1) == "@" and string.format('["%s"]', name) or name
+  end
+  
+  function print_group(val)
+    local visited = {}
+    local text = {}
+    local keys = {}
+    for _, name in ipairs(color_params) do
+      if val[name] then
+        local color_name = name_by_color[val[name]]
+        if color_name == val[name] then
+          table.insert(text, string.format("%s = %s", name, color_name))
+        else
+          table.insert(text, string.format("%s = p.%s", name, color_name))
+        end
+        visited[name] = true
+      end
+    end
+    for key, val in pairs(val) do
+      if not visited[key] then
+        table.insert(keys, key)
+      end
+    end
+    table.sort(keys)
+    for _, key in ipairs(keys) do
+      table.insert(text, string.format("%s = %s", key, vim.inspect(val[key]):gsub("\n", "")))
+    end
+    return table.concat(text, ", ")
+  end
+  
   for _, category in ipairs(hl.tree.categories) do
     local groups = hl.tree[category] or {}
     if #groups > 0 then
       file:write(" -- ", category, "\n")
       for _, group in ipairs(groups) do
         local val = hl.groups[group]
-        file:write(string.format('["%s"] = %s,\n', group, vim.inspect(val):gsub("\n", "")))
+        file:write(string.format('  %-30s = { %s },\n', print_name(group), print_group(val)))
       end
     end
   end
@@ -177,10 +209,10 @@ function M.save_theme(hl_groups)
         return
       end
       indent(level)
-      file:write(string.format('["%s"] = {},', node))
+      file:write(string.format('%s = {},', print_name(node)))
     else
       indent(level)
-      file:write(string.format('["%s"] = {', node))
+      file:write(string.format('%s = {', print_name(node)))
       for _, child in ipairs(children) do
         print_link(child, level+1)
       end
