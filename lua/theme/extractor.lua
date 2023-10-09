@@ -66,6 +66,10 @@ function invert_table(t)
   return res
 end
 
+function merge_table(to, from)
+  return vim.tbl_deep_extend("force", to, from)
+end
+
 function M.parse_highlights(hl_groups)
   local hl = {}
   hl.groups = hl_groups
@@ -129,10 +133,10 @@ function M.parse_highlights(hl_groups)
   return hl
 end
 
-function M.save_theme(hl_groups)
+function M.save_theme(hl_groups, name)
   local colors = require("theme.colors")
   colors.load()
-  local file,err = io.open("theme.lua",'w')
+  local file,err = io.open(name..".lua",'w')
   if not file then
     print("error:", err)
     return
@@ -160,7 +164,7 @@ function M.save_theme(hl_groups)
       if val[name] then
         local color_name = name_by_color[val[name]]
         if color_name == val[name] then
-          table.insert(text, string.format("%s = %s", name, color_name))
+          table.insert(text, string.format('%s = "%s"', name, color_name))
         else
           table.insert(text, string.format("%s = p.%s", name, color_name))
         end
@@ -225,7 +229,8 @@ function M.save_theme(hl_groups)
     print_link(highlight)
   end
   
-  file:write("\n} -- links")
+  file:write("\n} -- links\n")
+  file:write("return {palette = p, highlights = highlights, links = links}\n")
   for name, _ in pairs(visited) do
     hl_groups[name] = nil
   end
@@ -233,8 +238,67 @@ function M.save_theme(hl_groups)
   file:close()
 end
 
+function from_links_tree(links)
+  local hl = {}
+  function visit(root, node)
+    root = root[node] or {}
+    for child, _ in pairs(root) do
+      hl[child] = {link = node}
+      visit(root, child)
+    end
+  end
+  for node, _ in pairs(links) do
+    visit(links, node)
+  end
+  return hl
+end
+
+function flatten_highlights(hl)
+  return merge_table(from_links_tree(hl.links), hl.highlights)
+end
+
+function equals(o1, o2)
+  if o1 == o2 then return true end
+  local o1Type = type(o1)
+  local o2Type = type(o2)
+  if o1Type ~= o2Type then return false end
+  if o1Type ~= 'table' then return false end
+
+  local keySet = {}
+
+  for key1, value1 in pairs(o1) do
+    local value2 = o2[key1]
+    if value2 == nil or equals(value1, value2) == false then
+      return false
+    end
+    keySet[key1] = true
+  end
+
+  for key2, _ in pairs(o2) do
+    if not keySet[key2] then return false end
+  end
+  return true
+end
+
+function remove_table(from, table)
+  for key, val in pairs(table) do
+    if equals(from[key], val) then
+      from[key] = nil
+    end
+  end
+end
+
 function M.test()
-  M.save_theme(M.extract_highlights())
+  local hl = M.extract_highlights()
+  
+  --vim.print(from_links_tree(dofile("default.lua").links))
+  remove_table(hl, flatten_highlights(dofile("default.lua")))
+  
+  M.save_theme(hl, "theme")
+end
+
+function M.default()
+  M.save_theme(M.extract_highlights(), "default")
 end
 
 function M.save_hl_xml()
