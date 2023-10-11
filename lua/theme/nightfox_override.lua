@@ -10,15 +10,15 @@ local fg = C("#f2f4f8")
 -- stylua: ignore
 local pal = {
   black   = Shade.new("#282828", 0.15, -0.15),
-  red     = Shade.new("#cc6666", 0.15, -0.15),
-  green   = Shade.new("#b5bd68", 0.15, -0.15), -- #25be6a or #42BE65
-  yellow  = Shade.new("#f0c674", 0.15, -0.15),
-  blue    = Shade.new("#81a2be", 0.15, -0.15),
-  magenta = Shade.new("#b294bb", 0.15, -0.15),
-  cyan    = Shade.new("#8abeb7", 0.15, -0.15),
+  red     = {bright = "#cc8c8c", base = "#cc6666", dim = "#a54b4b"},
+  green   = {bright = "#bbb529", base = "#a5c261", dim = "#698653"},
+  yellow  = {bright = "#ffff00", base = "#ffc66d", dim = "#bc9458"},
+  blue    = {bright = "#81a2be", base = "#a6a8ff", dim = "#8888c6"},
+  magenta = {bright = "#ca89c4", base = "#9876aa", dim = "#9f3895"},
+  cyan    = {bright = "#8abeb7", base = "#8abeb7", dim = "#7ba8a2"},
   white   = Shade.new("#dfdfe0", 0.15, -0.15),
-  orange  = Shade.new("#de935f", 0.15, -0.15),
-  pink    = Shade.new("#a3685a", 0.15, -0.15),
+  orange  = {bright = "#dd985e", base = "#cb7832", dim = "#aa4926"},
+  pink    = {bright = "#ffc6a6", base = "#a3685a", dim = "#a3685a"},
 
   comment = bg:blend(fg, 0.4):to_css(),
 
@@ -58,21 +58,21 @@ local spec = {
 
 spec.syntax = {
   bracket     = spec.fg2,           -- Brackets and Punctuation
-  builtin0    = pal.red.base,       -- Builtin variable
+  builtin0    = pal.red.dim,       -- Builtin variable
   builtin1    = pal.cyan.bright,    -- Builtin type
   builtin2    = pal.orange.bright,  -- Builtin const
-  builtin3    = pal.red.bright,     -- Not used
+  builtin3    = pal.pink.bright,     -- Builtin func
   namespace   = pal.magenta.bright,
   delimiter   = pal.pink.base,
   comment     = pal.comment,        -- Comment
   conditional = pal.orange.base, -- Conditional and loop
-  const       = pal.orange.bright,  -- Constants, imports and booleans
+  const       = pal.red.base,  -- Constants, imports and booleans
   dep         = spec.fg3,           -- Deprecated
-  field       = pal.blue.base,      -- Field
-  func        = pal.blue.bright,    -- Functions and Titles
+  field       = pal.yellow.dim,      -- Field
+  func        = pal.yellow.base,    -- Functions and Titles
   ident       = pal.cyan.base,      -- Identifiers
   keyword     = pal.orange.base,   -- Keywords
-  number      = pal.cyan.base,    -- Numbers
+  number      = pal.blue.bright,    -- Numbers
   operator    = spec.fg2,           -- Operators
   preproc     = pal.blue.base,    -- PreProc
   regex       = pal.yellow.bright,  -- Regex
@@ -112,19 +112,49 @@ spec.git = {
 }
 
 local group = {
-  ["@namespace"] = {fg = spec.namespace },
-  ["@tag.delimiter"] = {fg = spec.delimiter},
+  ["@namespace"] = {fg = spec.syntax.namespace },
+  ["@tag.delimiter"] = {fg = spec.syntax.delimiter},
+  ["@punctuation.special"] = {fg = spec.syntax.delimiter},
+  ["@function.builtin"] = {fg = spec.syntax.builtin3},
+  ["@function.macro"] = {link = "Macro"},
+  ["@keyword.return"] = {link = "Keyword"},
+  ["@type.qualifier"] = {link = "Keyword"},
+  StorageClass = {link = "Keyword"},
+  ["@exception"] = {link = "Exception"},
+  ["@parameter"] = {fg = spec.syntax.variable}, -- ???
+  diffLine = {fg = spec.syntax.info}, -- ???
 }
 
   -- stylua: ignore stop
 
 function M.get_options(theme_name)
-  
   return {
     palettes = {[theme_name] = pal},
     specs = {[theme_name] = spec},
 	groups = {[theme_name] = group}
   }
+end
+
+function M.current_file_path()
+  return debug.getinfo(1, "S").source:sub(2, -1)
+end
+
+function M.reload(name)
+  name = name or "nightfox.nvim"
+  local plugin = require("lazy.core.config").plugins[name]
+  require("lazy").reload({plugins = {plugin}})
+end
+
+function M.interactive()
+  local api = vim.api
+  local augroup = api.nvim_create_augroup("NightfoxInteractiveAugroup", {clear = true})
+  api.nvim_create_autocmd("BufWritePost", {group = augroup, buffer = api.nvim_get_current_buf(),
+    callback = function(id, event, group, match, buf, file, data)
+      M.reload()
+      vim.cmd([[doautoall ColorScheme]])
+      -- return true -- to delete autocmd
+    end
+  })
 end
 
 return M

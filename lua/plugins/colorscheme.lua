@@ -55,16 +55,17 @@ return {
 	}
   },
   
-  { "EdanEast/nightfox.nvim",
+  { "EdenEast/nightfox.nvim",
     lazy = false,
 	priority = 1000,
-	opts = function(plug, opts) 
-	  return require("theme.nightfox_override").get_options("carbonfox")
+	opts = function(plug, opts)
+      local conf_name = "theme.nightfox_override"
+      package.loaded[conf_name] = nil
+	  return require(conf_name).get_options("carbonfox")
 	end,
 	config = function(plug, opts)
 	  require("nightfox").setup(opts)
 	  vim.cmd([[colorscheme carbonfox]])
 	end,
   },
-  
 }
