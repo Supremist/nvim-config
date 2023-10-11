@@ -98,6 +98,10 @@ return {
             },
           },
         },
+        
+        -- Python
+        pyright = {},
+        ruff_lsp = {},
 
         clangd = {
           keys = {
@@ -151,6 +155,15 @@ return {
         clangd = function(_, opts)
           require("clangd_extensions").setup(vim.tbl_deep_extend("force", clangd_ext.opts, { server = opts }))
           return false
+        end,
+        
+        ruff_lsp = function()
+          -- require("lazyvim.util").on_attach(function(client, _)
+            -- if client.name == "ruff_lsp" then
+              -- -- Disable hover in favor of Pyright
+              -- client.server_capabilities.hoverProvider = false
+            -- end
+          -- end)
         end,
       },
     },
