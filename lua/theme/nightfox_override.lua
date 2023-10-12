@@ -10,14 +10,14 @@ local fg = C("#f2f4f8")
 -- stylua: ignore
 local pal = {
   black   = Shade.new("#282828", 0.15, -0.15),
-  red     = {bright = "#cc8c8c", base = "#cc6666", dim = "#a54b4b"},
+  red     = {bright = "#cc8c8c", base = "#cc6666", dim = "#8c4646"},
   green   = {bright = "#bbb529", base = "#a5c261", dim = "#698653"},
   yellow  = {bright = "#ffff00", base = "#ffc66d", dim = "#bc9458"},
   blue    = {bright = "#81a2be", base = "#a6a8ff", dim = "#8888c6"},
-  magenta = {bright = "#ca89c4", base = "#9876aa", dim = "#9f3895"},
+  magenta = {bright = "#bf91bb", base = "#9876aa", dim = "#9f3895"},
   cyan    = {bright = "#8abeb7", base = "#8abeb7", dim = "#7ba8a2"},
   white   = Shade.new("#dfdfe0", 0.15, -0.15),
-  orange  = {bright = "#dd985e", base = "#cb7832", dim = "#aa4926"},
+  orange  = {bright = "#dd985e", base = "#cb7832", dim = "#a85b1d"},
   pink    = {bright = "#ffc6a6", base = "#a3685a", dim = "#a3685a"},
 
   comment = bg:blend(fg, 0.4):to_css(),
@@ -116,6 +116,7 @@ local group = {
   ["@tag.delimiter"] = {fg = spec.syntax.delimiter},
   ["@punctuation.special"] = {fg = spec.syntax.delimiter},
   ["@function.builtin"] = {fg = spec.syntax.builtin3},
+  Boolean = {fg = spec.syntax.builtin2 },
   ["@function.macro"] = {link = "Macro"},
   ["@keyword.return"] = {link = "Keyword"},
   ["@type.qualifier"] = {link = "Keyword"},
@@ -123,6 +124,10 @@ local group = {
   ["@exception"] = {link = "Exception"},
   ["@parameter"] = {fg = spec.syntax.variable}, -- ???
   diffLine = {fg = spec.syntax.info}, -- ???
+
+  ["@lsp.mod.virtual"] = {style = "italic"},
+  ["@lsp.mod.declaration"] = {style = "bold"},
+  ["@lsp.mod.usedAsMutableReference"] = {style = "italic"},
 }
 
   -- stylua: ignore stop
