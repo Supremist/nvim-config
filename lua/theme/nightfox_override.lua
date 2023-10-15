@@ -5,17 +5,17 @@ local Shade = require("nightfox.lib.shade")
 local M = {}
 
 local bg = C("#1d1f21")
-local fg = C("#f2f4f8")
+local fg = C("#b4c3d4") -- Original #a9b7c6
 
 -- stylua: ignore
 local pal = {
   black   = Shade.new("#282828", 0.15, -0.15),
   red     = {bright = "#cc8c8c", base = "#cc6666", dim = "#8c4646"},
-  green   = {bright = "#bbb529", base = "#a5c261", dim = "#698653"},
+  green   = {bright = "#afbf7e", base = "#a5c261", dim = "#6a8759"},
   yellow  = {bright = "#ffff00", base = "#ffc66d", dim = "#bc9458"},
-  blue    = {bright = "#81a2be", base = "#a6a8ff", dim = "#8888c6"},
+  blue    = {bright = "#a6a8ff", base = "#6897bb", dim = "#8888c6"},
   magenta = {bright = "#bf91bb", base = "#9876aa", dim = "#9f3895"},
-  cyan    = {bright = "#8abeb7", base = "#8abeb7", dim = "#7ba8a2"},
+  cyan    = {bright = "#6fafbd", base = "#20999d", dim = "#688b8a"},
   white   = Shade.new("#dfdfe0", 0.15, -0.15),
   orange  = {bright = "#dd985e", base = "#cb7832", dim = "#a85b1d"},
   pink    = {bright = "#ffc6a6", base = "#a3685a", dim = "#a3685a"},
@@ -58,8 +58,8 @@ local spec = {
 
 spec.syntax = {
   bracket     = spec.fg2,           -- Brackets and Punctuation
-  builtin0    = pal.red.dim,       -- Builtin variable
-  builtin1    = pal.cyan.bright,    -- Builtin type
+  builtin0    = pal.orange.dim,       -- Builtin variable
+  builtin1    = pal.blue.dim,    -- Builtin type
   builtin2    = pal.orange.bright,  -- Builtin const
   builtin3    = pal.pink.bright,     -- Builtin func
   namespace   = pal.magenta.bright,
@@ -70,16 +70,20 @@ spec.syntax = {
   dep         = spec.fg3,           -- Deprecated
   field       = pal.yellow.dim,      -- Field
   func        = pal.yellow.base,    -- Functions and Titles
-  ident       = pal.cyan.base,      -- Identifiers
+  ident       = pal.red.bright,      -- Identifiers. Unused now, @deprecated
   keyword     = pal.orange.base,   -- Keywords
-  number      = pal.blue.bright,    -- Numbers
-  operator    = spec.fg2,           -- Operators
-  preproc     = pal.blue.base,    -- PreProc
+  number      = pal.blue.base,    -- Numbers
+  operator    = pal.cyan.dim,           -- Operators
+  preproc     = pal.blue.bright,    -- PreProc
   regex       = pal.yellow.bright,  -- Regex
   statement   = pal.pink.base,   -- Statements
   string      = pal.green.base,     -- Strings
   type        = pal.magenta.base,    -- Types
-  variable    = pal.white.base,     -- Variables
+  variable    = spec.fg1,     -- Variables
+  parameter   = pal.white.base,
+
+  typeParam   = pal.cyan.base,
+  literal     = pal.green.dim, -- Used for doc string also
 }
 
 spec.diag = {
@@ -111,23 +115,32 @@ spec.git = {
   ignored  = pal.comment,
 }
 
+local syn = spec.syntax
+
 local group = {
-  ["@namespace"] = {fg = spec.syntax.namespace },
-  ["@tag.delimiter"] = {fg = spec.syntax.delimiter},
-  ["@punctuation.special"] = {fg = spec.syntax.delimiter},
-  ["@function.builtin"] = {fg = spec.syntax.builtin3},
-  Boolean = {fg = spec.syntax.builtin2 },
+  ["@namespace"] = {fg = syn.namespace },
+  ["@tag.delimiter"] = {fg = syn.delimiter},
+  ["@punctuation.special"] = {fg = syn.delimiter},
+  ["@function.builtin"] = {fg = syn.builtin3},
+  Boolean = {fg = syn.builtin2 },
   ["@function.macro"] = {link = "Macro"},
   ["@keyword.return"] = {link = "Keyword"},
+  ["@keyword.operator"] = {link = "Keyword"},
   ["@type.qualifier"] = {link = "Keyword"},
   StorageClass = {link = "Keyword"},
   ["@exception"] = {link = "Exception"},
-  ["@parameter"] = {fg = spec.syntax.variable}, -- ???
-  diffLine = {fg = spec.syntax.info}, -- ???
+  ["@text.literal"] = {fg = syn.literal},
+  ["@constructor"] = {fg = syn.type},
+  ["@parameter"] = {fg = syn.parameter},
+  ["@comment.documentation"] = {fg = syn.literal},
+  diffLine = {fg = syn.info}, -- ???
 
   ["@lsp.mod.virtual"] = {style = "italic"},
   ["@lsp.mod.declaration"] = {style = "bold"},
   ["@lsp.mod.usedAsMutableReference"] = {style = "italic"},
+  ["@lsp.type.typeParameter"] = {fg = syn.typeParam},
+  ["@lsp.type.enummember"] = {fg = syn.namespace, style = "italic"},
+  ["@lsp.typemod.operator.userDefined"] = {fg = pal.cyan.bright},
 }
 
   -- stylua: ignore stop
