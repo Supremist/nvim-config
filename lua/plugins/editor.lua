@@ -1,5 +1,47 @@
 local Util = require("util")
 
+local function call_tree_cmd(state, cmd_name)
+  local cmd = state.commands[cmd_name]
+  if cmd then
+    cmd(state)
+  else
+    vim.print("Failed to call neo-tree command: " .. cmd_name)
+  end
+end
+
+local sticky_jumps, process_jump
+
+sticky_jumps = function(multi_window)
+  vim.api.nvim_input("/")
+end
+
+process_jump = function(match, state, continue_jumping)
+  local bufn = vim.api.nvim_win_get_buf(match.win)
+  local buf_type = vim.api.nvim_buf_get_option(bufn, "filetype")
+  if buf_type ~= "neo-tree" then
+    return
+  end
+  local mgr = require("neo-tree.sources.manager")
+  local tree_state = mgr.get_state_for_window(match.win)
+  if not tree_state then
+    return
+  end
+  -- jumped on tree node, open it
+  call_tree_cmd(tree_state, "open")
+
+  if continue_jumping then
+    require("neo-tree.events").subscribe({
+      event = "after_render",
+      handler = function()
+        -- jump in the same window
+        sticky_jumps(false)
+      end,
+      id = "trigger_search_continuous",
+      once = true,
+    })
+  end
+end
+
 return {
 
   -- file explorer
@@ -51,9 +93,17 @@ return {
         follow_current_file = { enabled = true },
         use_libuv_file_watcher = true,
       },
+      commands = {
+        sticky_jump = function()
+          sticky_jumps(false)
+        end,
+      },
       window = {
         mappings = {
           ["<space>"] = "none",
+          ["/"] = "none",
+          ["F"] = "fuzzy_finder",
+          ["#"] = "sticky_jump",
         },
       },
       default_component_configs = {
@@ -227,11 +277,31 @@ return {
     event = "VeryLazy",
     vscode = true,
     ---@type Flash.Config
-    opts = {},
+    opts = {
+      config = function(c)
+        if c.mode == "search" then
+          c.action = function (match, state)
+            local Jump = require("flash.plugins.search")
+            Jump.jump(match, state)
+            vim.api.nvim_create_autocmd("CmdlineLeave", {
+              once = true,
+              callback = vim.schedule_wrap(function()
+                process_jump(match, state, true)
+              end),
+            })
+          end
+        end
+      end,
+    },
     -- stylua: ignore
     keys = {
+      { "#", mode = { "n", "x"}, function() require("flash").jump({
+        search = {
+          mode = "fuzzy",
+        },
+      }) end, desc = "Flash" },
       { "s", mode = { "n", "x", "o" }, function() require("flash").jump() end, desc = "Flash" },
-      { "S", mode = { "n", "o", "x" }, function() require("flash").treesitter() end, desc = "Flash Treesitter" },
+      { "S", mode = { "n", "x", "o" }, function() require("flash").treesitter() end, desc = "Flash Treesitter" },
       { "r", mode = "o", function() require("flash").remote() end, desc = "Remote Flash" },
       { "R", mode = { "o", "x" }, function() require("flash").treesitter_search() end, desc = "Treesitter Search" },
       { "<c-s>", mode = { "c" }, function() require("flash").toggle() end, desc = "Toggle Flash Search" },
