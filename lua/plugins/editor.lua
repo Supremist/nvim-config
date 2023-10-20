@@ -9,36 +9,52 @@ local function call_tree_cmd(state, cmd_name)
   end
 end
 
-local sticky_jumps, process_jump
+local function get_tree_state(winid)
+  local bufn = vim.api.nvim_win_get_buf(winid)
+  local buf_type = vim.api.nvim_buf_get_option(bufn, "filetype")
+  if buf_type == "neo-tree" then
+    return require("neo-tree.sources.manager").get_state_for_window(winid)
+  end
+end
 
-sticky_jumps = function(multi_window)
+local function start_search()
+  vim.api.nvim_feedkeys("zt", "n", false)
   vim.api.nvim_input("/")
 end
 
-process_jump = function(match, state, continue_jumping)
-  local bufn = vim.api.nvim_win_get_buf(match.win)
-  local buf_type = vim.api.nvim_buf_get_option(bufn, "filetype")
-  if buf_type ~= "neo-tree" then
-    return
-  end
-  local mgr = require("neo-tree.sources.manager")
-  local tree_state = mgr.get_state_for_window(match.win)
-  if not tree_state then
-    return
-  end
-  -- jumped on tree node, open it
-  call_tree_cmd(tree_state, "open")
-
-  if continue_jumping then
-    require("neo-tree.events").subscribe({
-      event = "after_render",
-      handler = function()
-        -- jump in the same window
-        sticky_jumps(false)
-      end,
-      id = "trigger_search_continuous",
+local function process_search_jump(match, state)
+  local Jump = require("flash.plugins.search")
+  local tree_state = get_tree_state(match.win)
+  if tree_state then
+    -- do not save jumps to neo-tree in history
+    state.opts.jump.register = false
+    state.opts.jump.history = false
+    Jump.jump(match, state)
+    vim.api.nvim_create_autocmd("CmdlineLeave", {
       once = true,
+      callback = vim.schedule_wrap(function()
+        -- jumped on tree node, open it
+        local node = tree_state.tree:get_node()
+        local was_loaded = node.loaded
+        if not node:is_expanded() then
+          call_tree_cmd(tree_state, "open")
+        end
+        if node.type == "directory" then
+          if was_loaded then
+            vim.schedule(start_search)
+          else
+            require("neo-tree.events").subscribe({
+              event = "after_render",
+              once = true,
+              handler = start_search,
+              id = "trigger_search_continuous",
+            })
+          end
+        end
+      end),
     })
+  else
+    Jump.jump(match, state)
   end
 end
 
@@ -94,16 +110,12 @@ return {
         use_libuv_file_watcher = true,
       },
       commands = {
-        sticky_jump = function()
-          sticky_jumps(false)
-        end,
       },
       window = {
         mappings = {
           ["<space>"] = "none",
           ["/"] = "none",
           ["F"] = "fuzzy_finder",
-          ["#"] = "sticky_jump",
         },
       },
       default_component_configs = {
@@ -280,16 +292,7 @@ return {
     opts = {
       config = function(c)
         if c.mode == "search" then
-          c.action = function (match, state)
-            local Jump = require("flash.plugins.search")
-            Jump.jump(match, state)
-            vim.api.nvim_create_autocmd("CmdlineLeave", {
-              once = true,
-              callback = vim.schedule_wrap(function()
-                process_jump(match, state, true)
-              end),
-            })
-          end
+          c.action = process_search_jump
         end
       end,
     },
@@ -298,6 +301,7 @@ return {
       { "#", mode = { "n", "x"}, function() require("flash").jump({
         search = {
           mode = "fuzzy",
+          incremental = true,
         },
       }) end, desc = "Flash" },
       { "s", mode = { "n", "x", "o" }, function() require("flash").jump() end, desc = "Flash" },
