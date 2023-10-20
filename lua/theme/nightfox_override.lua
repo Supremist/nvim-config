@@ -138,6 +138,7 @@ local group = {
   ["@lsp.mod.virtual"] = {style = "italic"},
   ["@lsp.mod.declaration"] = {style = "bold"},
   ["@lsp.mod.usedAsMutableReference"] = {style = "italic"},
+  ["@lsp.mod.usedAsMutablePointer"] = {style = "italic"},
   ["@lsp.type.typeParameter"] = {fg = syn.typeParam},
   ["@lsp.type.enummember"] = {fg = syn.namespace, style = "italic"},
   ["@lsp.typemod.operator.userDefined"] = {fg = pal.cyan.bright},
