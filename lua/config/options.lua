@@ -23,3 +23,7 @@ opt.updatetime = 2000
 opt.number = true
 opt.relativenumber = true
 require("config.line_number")
+
+opt.list = true
+opt.showbreak="↪"
+opt.listchars="tab: ⎯→,nbsp:␣,lead:•,multispace:•,trail:•,extends:⟩,precedes:⟨"
