@@ -19,7 +19,14 @@ end
 
 local function start_search()
   vim.api.nvim_feedkeys("zt", "n", false)
-  vim.api.nvim_input("/")
+  local anim = package.loaded["mini.animate"]
+  if anim then
+    anim.execute_after("scroll", function()
+      vim.api.nvim_input("/")
+    end)
+  else
+    vim.api.nvim_input("/")
+  end
 end
 
 local function process_search_jump(match, state)
@@ -462,4 +469,20 @@ return {
       { "<leader>bD", function() require("mini.bufremove").delete(0, true) end, desc = "Delete Buffer (Force)" },
     },
   },
+
+  {
+    "karb94/neoscroll.nvim",
+    event = "VeryLazy",
+    opts = {
+      respect_scrolloff = true,
+      mappings = {},
+    },
+    config = function(_, opts)
+      require("neoscroll").setup(opts)
+      local m = {}
+      m["<C-u>"] = {'scroll', {'-vim.wo.scroll', 'true', '30'}}
+      m["<C-d>"] = {'scroll', {' vim.wo.scroll', 'true', '30'}}
+      require("neoscroll.config").set_mappings(m)
+    end,
+  }
 }

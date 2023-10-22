@@ -1,3 +1,4 @@
+local editor = require("config.editor")
 vim.g.mapleader = " "
 vim.g.maplocalleader = "\\"
 
@@ -21,7 +22,8 @@ opt.smartcase = true
 opt.updatetime = 2000
 
 opt.number = true
-require("config.editor").set_hybridnumber(true)
+editor.set_hybridnumber(true)
+editor.watch_win_size()
 
 opt.list = true
 opt.showbreak="↪"
