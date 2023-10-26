@@ -59,9 +59,7 @@ return {
     lazy = false,
 	priority = 1000,
 	opts = function(plug, opts)
-      local conf_name = "theme.nightfox_override"
-      package.loaded[conf_name] = nil
-	  return require(conf_name).get_options("carbonfox")
+	  return require("util.module").require({"theme.nightfox_override", reload = true}).get_options("carbonfox")
 	end,
 	config = function(plug, opts)
 	  require("nightfox").setup(opts)

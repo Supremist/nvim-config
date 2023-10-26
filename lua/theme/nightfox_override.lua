@@ -154,10 +154,6 @@ function M.get_options(theme_name)
   }
 end
 
-function M.current_file_path()
-  return debug.getinfo(1, "S").source:sub(2, -1)
-end
-
 function M.reload(name)
   name = name or "nightfox.nvim"
   local plugin = require("lazy.core.config").plugins[name]

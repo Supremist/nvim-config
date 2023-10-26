@@ -78,5 +78,4 @@ function M.telescope(builtin, opts)
   end
 end
 
-
 return M

@@ -160,7 +160,7 @@ return {
       { "<leader>e", "<leader>fe", desc = "Explorer NeoTree (root dir)", remap = true },
       { "<leader>E", "<leader>fE", desc = "Explorer NeoTree (cwd)", remap = true },
     },
-    deactivate = function()
+    deactivate_ = function()
       vim.cmd([[Neotree close]])
     end,
     init = function()
@@ -232,6 +232,8 @@ return {
       "nvim-lua/plenary.nvim",
       "nvim-tree/nvim-web-devicons"
     },
+
+    deactivate = function() end,
 
     keys = {
       { "<leader>,", "<cmd>Telescope buffers show_all_buffers=true<cr>", desc = "Switch Buffer" },
@@ -359,7 +361,6 @@ return {
   {
     "folke/flash.nvim",
     event = "VeryLazy",
-    vscode = true,
     ---@type Flash.Config
     opts = {
       labels = "asdfghjklqwertyuiopzxcvbnm1234567890ASDFGHJKLQWERTYUIOPZXCVBNM",
@@ -373,6 +374,7 @@ return {
         end
       end,
     },
+    deactivate = function() end,
     -- stylua: ignore
     keys = {
       { "#", mode = { "n", "x"}, function() require("flash").jump({
