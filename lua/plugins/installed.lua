@@ -1,7 +1,7 @@
 -- This file contains instalation data for all plugins. Used by lazy.nvim
 -- Each plugin entry may contain fields, required for locating correct plugin version.
 -- Such as: dir, url, name, dev, main, branch, tag, commit, version, pin, submodules
--- Entries may contain also fields, required for loading.
+-- Entries may also contain fields, required for loading.
 -- Such as: lazy, priority, enabled, cond, module, build, dependencies
 
 return {
