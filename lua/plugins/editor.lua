@@ -131,16 +131,8 @@ end
 return {
 
   -- file explorer
-  {
-    "nvim-neo-tree/neo-tree.nvim",
-    branch = "v3.x",
+  { "neo-tree.nvim",
     cmd = "Neotree",
-
-    dependencies = {
-      "nvim-lua/plenary.nvim",
-      "nvim-tree/nvim-web-devicons", -- optional
-      "MunifTanjim/nui.nvim",
-    },
 
     keys = {
       {
@@ -222,16 +214,8 @@ return {
   -- },
 
   -- fuzzy finder
-  {
-    "nvim-telescope/telescope.nvim",
-    commit = vim.fn.has("nvim-0.9.0") == 0 and "057ee0f8783" or nil,
+  { "telescope.nvim",
     cmd = "Telescope",
-    version = false, -- telescope did only one release, so use HEAD for now
-
-    dependencies = {
-      "nvim-lua/plenary.nvim",
-      "nvim-tree/nvim-web-devicons"
-    },
 
     deactivate = function() end,
 
@@ -358,8 +342,7 @@ return {
   -- Flash enhances the built-in search functionality by showing labels
   -- at the end of each match, letting you quickly jump to a specific
   -- location.
-  {
-    "folke/flash.nvim",
+  { "flash.nvim",
     event = "VeryLazy",
     ---@type Flash.Config
     opts = {
@@ -393,8 +376,7 @@ return {
 
   -- which-key helps you remember key bindings by showing a popup
   -- with the active keybindings of the command you started typing.
-  {
-    "folke/which-key.nvim",
+  { "which-key.nvim",
     event = "VeryLazy",
     opts = {
       plugins = { spelling = true },
@@ -427,8 +409,7 @@ return {
   -- git signs highlights text that has changed since the list
   -- git commit, and also lets you interactively stage & unstage
   -- hunks in a commit.
-  {
-    "lewis6991/gitsigns.nvim",
+  { "gitsigns.nvim",
     event = { "BufReadPre", "BufNewFile" },
     opts = {
       signs = {
@@ -458,7 +439,7 @@ return {
         map("n", "<leader>ghb", function() gs.blame_line({ full = true }) end, "Blame Line")
         map("n", "<leader>ghd", gs.diffthis, "Diff This")
         map("n", "<leader>ghD", function() gs.diffthis("~") end, "Diff This ~")
-        map({ "o", "x" }, "ih", ":<C-U>Gitsigns select_hunk<CR>", "GitSigns Select Hunk")
+        map({"o","x"}, "ih", ":<C-U>Gitsigns select_hunk<CR>", "GitSigns Select Hunk")
       end,
     },
   },
@@ -466,8 +447,7 @@ return {
   -- Automatically highlights other instances of the word under your cursor.
   -- This works with LSP, Treesitter, and regexp matching to find the other
   -- instances.
-  {
-    "RRethy/vim-illuminate",
+  { "vim-illuminate",
     event = { "BufReadPost", "BufNewFile" },
     opts = {
       delay = 200,
@@ -504,8 +484,7 @@ return {
   },
 
   -- buffer remove
-  {
-    "echasnovski/mini.bufremove",
+  { "mini.bufremove",
     -- stylua: ignore
     keys = {
       { "<leader>bd", function() require("mini.bufremove").delete(0, false) end, desc = "Delete Buffer" },
@@ -513,8 +492,7 @@ return {
     },
   },
 
-  {
-    "karb94/neoscroll.nvim",
+  { "neoscroll.nvim",
     event = "VeryLazy",
     opts = {
       respect_scrolloff = true,

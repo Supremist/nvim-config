@@ -1,5 +1,4 @@
-local clangd_ext = {
-  "p00f/clangd_extensions.nvim",
+local clangd_ext = { "clangd_extensions.nvim",
   opts = {
     inlay_hints = {
       inline = false,
@@ -31,14 +30,8 @@ return {
   clangd_ext,
 
   -- lspconfig
-  {
-    "neovim/nvim-lspconfig",
+  { "nvim-lspconfig",
     event = { "BufReadPre", "BufNewFile" },
-    dependencies = {
-      {
-        "hrsh7th/cmp-nvim-lsp", -- only if "hrsh7th/nvim-cmp"
-      },
-    },
     ---@class PluginLspOpts
     opts = {
       -- options for vim.diagnostic.config()

@@ -3,21 +3,8 @@ return {
   -- use in Neovim to power faster and more accurate
   -- syntax highlighting.
   -- https://github.com/nvim-treesitter/nvim-treesitter
-  {
-    "nvim-treesitter/nvim-treesitter",
-    build = ":TSUpdate",
+  { "nvim-treesitter",
     event = { "BufReadPost", "BufNewFile" },
-    -- dependencies = {
-      -- {
-        -- "nvim-treesitter/nvim-treesitter-textobjects",
-        -- init = function()
-          -- -- disable rtp plugin, as we only need its queries for mini.ai
-          -- -- In case other textobject modules are enabled, we will load them
-          -- -- once nvim-treesitter is loaded
-          -- require("lazy.core.loader").disable_rtp_plugin("nvim-treesitter-textobjects")
-        -- end,
-      -- },
-    -- },
     cmd = { "TSUpdateSync" },
 	-- TODO Incremental selection keybinds
     -- keys = {
