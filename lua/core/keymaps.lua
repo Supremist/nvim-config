@@ -52,10 +52,19 @@ function M.parse(keymaps)
   for i,keymap in ipairs(keymaps) do
     local spec = vim.deepcopy(keymap)
     if spec[1] ~= nil then
+      local rhs = spec[3]
+      if type(rhs) == "table" then
+        local opts = rhs
+        rhs = rhs.value
+        opts.value = nil
+        for k,v in pairs(opts) do
+          spec[k] = v
+        end
+      end
       spec.mode = M.split(spec[1])
       spec.ft = M.split(spec.ft)
       spec.lhs = M.expand(spec[2])
-      spec.rhs = M.expand(spec[3])
+      spec.rhs = M.expand(rhs)
       spec.desc = spec[4]
       spec.buffer = keymap.buffer == true and 0 or keymap.buffer
       spec[1] = nil
@@ -85,6 +94,10 @@ end
 
 function M.cmd(command)
   return "<CMD>"..command.."<CR>"
+end
+
+function M.expr(value)
+  return {expr = true, value = value}
 end
 
 function M.termcodes(keys)

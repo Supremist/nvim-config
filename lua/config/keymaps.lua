@@ -15,23 +15,24 @@
 -- script, unique - same as original :map-arguments
 -- where StringArray is (string|string[]) but if string contains "," then it will be splitted
 
+local Keymaps = require("core.keymaps")
 local require = require("lazy.core.util").lazy_require
 local Util = require("util")
 -- Just more compact
 local n = "n"
 local i = "i"
-
+local expr = Keymaps.expr
 
 local M = {}
 M.plugins = {}
 
 M.global = {
 -- mode   lhs  rhs                          description
-  {"n,x", "k", "v:count == 0 ? 'gk' : 'k'", "move up one *wrapped* line",   expr = true},
-  {"n,x", "j", "v:count == 0 ? 'gj' : 'j'", "move down one *wrapped* line", expr = true},
+  {"n,x", "k", expr("v:count == 0 ? 'gk' : 'k'"), "move up one *wrapped* line"},
+  {"n,x", "j", expr("v:count == 0 ? 'gj' : 'j'"), "move down one *wrapped* line"},
 
-  {"n,x", "↑", "v:count == 0 ? 'gk' : 'k'", "move up one *wrapped* line",   expr = true},
-  {"n,x", "↓", "v:count == 0 ? 'gj' : 'j'", "move down one *wrapped* line", expr = true},
+  {"n,x", "↑", expr("v:count == 0 ? 'gk' : 'k'"), "move up one *wrapped* line"},
+  {"n,x", "↓", expr("v:count == 0 ? 'gj' : 'j'"), "move down one *wrapped* line"},
 
   {i, "↑", "<C-o>gk", "move up one *wrapped* line"},
   {i, "↓", "<C-o>gj", "move down one *wrapped* line"},
