@@ -18,35 +18,56 @@
 local Keymaps = require("core.keymaps")
 local require = require("lazy.core.util").lazy_require
 local Util = require("util")
--- Just more compact
-local n = "n"
-local i = "i"
+
 local expr = Keymaps.expr
+local cmd = Keymaps.cmd
+local W = Keymaps.wrap_mod
 
 local M = {}
 M.plugins = {}
+M.mappings = {}
 
 M.global = {
--- mode   lhs  rhs                          description
+-- mode   lhs  rhs                                description
   {"n,x", "k", expr("v:count == 0 ? 'gk' : 'k'"), "move up one *wrapped* line"},
   {"n,x", "j", expr("v:count == 0 ? 'gj' : 'j'"), "move down one *wrapped* line"},
 
   {"n,x", "↑", expr("v:count == 0 ? 'gk' : 'k'"), "move up one *wrapped* line"},
   {"n,x", "↓", expr("v:count == 0 ? 'gj' : 'j'"), "move down one *wrapped* line"},
 
-  {i, "↑", "<C-o>gk", "move up one *wrapped* line"},
-  {i, "↓", "<C-o>gj", "move down one *wrapped* line"},
+  {"i", "↑", "<C-o>gk", "move up one *wrapped* line"},
+  {"i", "↓", "<C-o>gj", "move down one *wrapped* line"},
 
-  {i, "<C-H>", "<C-w>", "delete previous word"}, -- <C-BS> is <C-H> because of terminal app
-  {i, "<C-w>", "<ESC><C-w>", "window menu from insert mode"},
+  {"i", "<C-H>", "<C-w>", "delete previous word"}, -- <C-BS> is <C-H> because of terminal app
+  {"i", "<C-w>", "<ESC><C-w>", "window menu from insert mode"},
 }
 
-local cmd = require("neo-tree.command")
+local tree = require("neo-tree.command")
 M.plugins["neo-tree.nvim"] = {
-  {n, "<L>fe", function() cmd.execute({toggle = true, dir = Util.get_root()}) end, "Explorer NeoTree (root dir)"},
-  {n, "<L>fE", function() cmd.execute({toggle = true, dir = vim.loop.cwd()}) end, "Explorer NeoTree (cwd)"},
-  {n, "<L>e", "<L>fe", "Explorer NeoTree (root dir)", remap = true },
-  {n, "<L>E", "<L>fE", "Explorer NeoTree (cwd)", remap = true },
+  {"n", "<L>fe", function() tree.execute({toggle = true, dir = Util.get_root()}) end, "Explorer NeoTree (root dir)"},
+  {"n", "<L>fE", function() tree.execute({toggle = true, dir = vim.loop.cwd()}) end, "Explorer NeoTree (cwd)"},
+  {"n", "<L>e", "<L>fe", "Explorer NeoTree (root dir)", remap = true },
+  {"n", "<L>E", "<L>fE", "Explorer NeoTree (cwd)", remap = true },
 }
+
+-- TODO Review LuaSnip and auto completion keybindings
+M.plugins["LuaSnip"] = {
+  {"i", "<tab>", expr(function() return require("luasnip").jumpable(1) and "<Plug>luasnip-jump-next" or "<tab>" end)},
+  {"s", "<tab>", W("luasnip").jump(1)},
+  {"i,s", "<s-tab>", W("luasnip").jump(-1)},
+}
+
+function M.cmp_mappings(cmp)
+  return Keymaps.table_by_lhs({
+    {"i", "<C-n>", cmp.mapping.select_next_item({ behavior = cmp.SelectBehavior.Insert })},
+    {"i", "<C-p>", cmp.mapping.select_prev_item({ behavior = cmp.SelectBehavior.Insert })},
+    {"i", "<C-b>", cmp.mapping.scroll_docs(-4)},
+    {"i", "<C-f>", cmp.mapping.scroll_docs(4)},
+    {"i", "<C-Space>", cmp.mapping.complete()},
+    {"i", "<C-e>", cmp.mapping.abort()},
+    {"i", "<CR>", cmp.mapping.confirm({ select = true })}, -- Accept currently selected item. Set `select` to `false` to only confirm explicitly selected items.
+    {"i", "<S-CR>", cmp.mapping.confirm({ behavior = cmp.ConfirmBehavior.Replace, select = true, })}, -- Accept currently selected item. Set `select` to `false` to only confirm explicitly selected items.
+  })
+end
 
 return M

@@ -92,6 +92,28 @@ function M.toLazyKeySpec(keymaps)
   return res
 end
 
+function M.table_by_mode(keymaps)
+  local res = {}
+  for _, k in ipairs(M.parse(keymaps)) do
+    for _, mode in ipairs(k.mode) do
+      res[mode] = res[mode] or {}
+      res[mode][k.lhs] = k.rhs
+    end
+  end
+  return res
+end
+
+function M.table_by_lhs(keymaps)
+  local res = {}
+  for _, k in ipairs(M.parse(keymaps)) do
+    res[k.lhs] = res[k.lhs] or {}
+    for _, mode in ipairs(k.mode) do
+      res[k.lhs][mode] = k.rhs
+    end
+  end
+  return res
+end
+
 function M.cmd(command)
   return "<CMD>"..command.."<CR>"
 end
