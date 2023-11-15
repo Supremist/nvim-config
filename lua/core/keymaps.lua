@@ -44,6 +44,33 @@ function M.split(str, sep)
   return res
 end
 
+local function parse_complex_rhs(keymap)
+  local rhs = keymap.rhs
+  local lhs = keymap.lhs
+  if type(rhs) == "table" and rhs.value then
+    local opts = rhs
+    rhs = rhs.value
+    opts.value = nil
+    for k,v in pairs(opts) do
+      keymap[k] = v
+    end
+  end
+  if type(rhs) == "table" then
+    if #rhs == 1 and type(rhs[1]) == "string" then
+      return M.expand(rhs[1])
+    end
+    return function()
+      for _, fn in ipairs(rhs) do
+        if fn() then
+          return
+        end
+      end
+      vim.api.nvim_feedkeys(M.termcodes(lhs), "n", false)
+    end
+  end
+  return M.expand(rhs)
+end
+
 function M.parse(keymaps)
   local res = {}
   if #keymaps == 0 or keymaps[1][1] == nil then
@@ -52,19 +79,11 @@ function M.parse(keymaps)
   for i,keymap in ipairs(keymaps) do
     local spec = vim.deepcopy(keymap)
     if spec[1] ~= nil then
-      local rhs = spec[3]
-      if type(rhs) == "table" then
-        local opts = rhs
-        rhs = rhs.value
-        opts.value = nil
-        for k,v in pairs(opts) do
-          spec[k] = v
-        end
-      end
+      spec.lhs = M.expand(spec[2])
+      spec.rhs = spec[3]
+      spec.rhs = parse_complex_rhs(spec)
       spec.mode = M.split(spec[1])
       spec.ft = M.split(spec.ft)
-      spec.lhs = M.expand(spec[2])
-      spec.rhs = M.expand(rhs)
       spec.desc = spec[4]
       spec.buffer = keymap.buffer == true and 0 or keymap.buffer
       spec[1] = nil
@@ -183,10 +202,12 @@ function M.wrap(provider)
     return function(...) -- which will have fake methods with arg forwarding
       local args = {...}
       return function(fallback) -- method returns a function which calls real object provider, and than method from real object
-        local res = provider()[method_name](table.unpack(args))
+        local unpack = table.unpack or unpack
+        local res = provider()[method_name](unpack(args))
         if res ~= nil and not res and fallback then
           fallback()
         end
+        return res
       end
     end
   end})

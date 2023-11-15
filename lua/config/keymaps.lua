@@ -28,6 +28,7 @@ M.plugins = {}
 M.mappings = {}
 
 M.global = {
+-- Better up/down
 -- mode   lhs  rhs                                description
   {"n,x", "k", expr("v:count == 0 ? 'gk' : 'k'"), "move up one *wrapped* line"},
   {"n,x", "j", expr("v:count == 0 ? 'gj' : 'j'"), "move down one *wrapped* line"},
@@ -38,8 +39,22 @@ M.global = {
   {"i", "↑", "<C-o>gk", "move up one *wrapped* line"},
   {"i", "↓", "<C-o>gj", "move down one *wrapped* line"},
 
+--Move lines
+  {"n", "<A-j>", "<CMD>m .+1<CR>==", "Move down"},
+  {"n", "<A-k>", "<CMD>m .-2<CR>==", "Move up"},
+  {"i", "<A-j>", "<ESC><CMD>m .+1<CR>==gi", "Move down"},
+  {"i", "<A-k>", "<ESC><CMD>m .-2<CR>==gi", "Move up"},
+  {"v", "<A-j>", ":m '>+1<CR>gv=gv", "Move down"},
+  {"v", "<A-k>", ":m '<-2<CR>gv=gv", "Move up"},
+
+-- Consistant mappings
   {"i", "<C-H>", "<C-w>", "delete previous word"}, -- <C-BS> is <C-H> because of terminal app
   {"i", "<C-w>", "<ESC><C-w>", "window menu from insert mode"},
+
+  {"i", "<Esc>", {function()
+    local cmp = package.loaded["cmp"]
+    return cmp and cmp.visible() and cmp.abort()
+  end}, "Close popup or enter Normal mode"}
 }
 
 local tree = require("neo-tree.command")
@@ -50,23 +65,30 @@ M.plugins["neo-tree.nvim"] = {
   {"n", "<L>E", "<L>fE", "Explorer NeoTree (cwd)", remap = true },
 }
 
--- TODO Review LuaSnip and auto completion keybindings
 M.plugins["LuaSnip"] = {
-  {"i", "<tab>", expr(function() return require("luasnip").jumpable(1) and "<Plug>luasnip-jump-next" or "<tab>" end)},
-  {"s", "<tab>", W("luasnip").jump(1)},
-  {"i,s", "<s-tab>", W("luasnip").jump(-1)},
+  {"i", "<C-e>", {W("luasnip").expand()} },
+  {"i,s", "<C-j>", {W("luasnip").jump(1)} },
+  {"i,s", "<C-k>", {W("luasnip").jump(-1)} },
+  {"i,s", "<C-y>", {W("luasnip").change_choice(1)} },
 }
 
 function M.cmp_mappings(cmp)
+  local function complete_or(method, opts)
+    return function()
+      if cmp.visible() then
+        cmp[method](opts)
+      else
+        cmp.complete()
+      end
+    end
+  end
   return Keymaps.table_by_lhs({
-    {"i", "<C-n>", cmp.mapping.select_next_item({ behavior = cmp.SelectBehavior.Insert })},
-    {"i", "<C-p>", cmp.mapping.select_prev_item({ behavior = cmp.SelectBehavior.Insert })},
+    {"i", "<C-n>", complete_or("select_next_item", { behavior = cmp.SelectBehavior.Select })},
+    {"i", "<C-p>", complete_or("select_prev_item", { behavior = cmp.SelectBehavior.Select })},
     {"i", "<C-b>", cmp.mapping.scroll_docs(-4)},
     {"i", "<C-f>", cmp.mapping.scroll_docs(4)},
-    {"i", "<C-Space>", cmp.mapping.complete()},
-    {"i", "<C-e>", cmp.mapping.abort()},
-    {"i", "<CR>", cmp.mapping.confirm({ select = true })}, -- Accept currently selected item. Set `select` to `false` to only confirm explicitly selected items.
-    {"i", "<S-CR>", cmp.mapping.confirm({ behavior = cmp.ConfirmBehavior.Replace, select = true, })}, -- Accept currently selected item. Set `select` to `false` to only confirm explicitly selected items.
+    {"i", "<Tab>", cmp.mapping.confirm({ select = true }), "Accept selected item | select first"},
+    {"i", "<S-Tab>", cmp.mapping.confirm({ behavior = cmp.ConfirmBehavior.Replace, select = true, })},
   })
 end
 
