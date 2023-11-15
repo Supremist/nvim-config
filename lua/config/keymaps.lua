@@ -50,11 +50,6 @@ M.global = {
 -- Consistant mappings
   {"i", "<C-H>", "<C-w>", "delete previous word"}, -- <C-BS> is <C-H> because of terminal app
   {"i", "<C-w>", "<ESC><C-w>", "window menu from insert mode"},
-
-  {"i", "<Esc>", {function()
-    local cmp = package.loaded["cmp"]
-    return cmp and cmp.visible() and cmp.abort()
-  end}, "Close popup or enter Normal mode"}
 }
 
 local tree = require("neo-tree.command")
@@ -66,25 +61,16 @@ M.plugins["neo-tree.nvim"] = {
 }
 
 M.plugins["LuaSnip"] = {
-  {"i", "<C-e>", {W("luasnip").expand()} },
+  {"i",   "<C-e>", {W("luasnip").expand()} },
   {"i,s", "<C-j>", {W("luasnip").jump(1)} },
   {"i,s", "<C-k>", {W("luasnip").jump(-1)} },
   {"i,s", "<C-y>", {W("luasnip").change_choice(1)} },
 }
 
 function M.cmp_mappings(cmp)
-  local function complete_or(method, opts)
-    return function()
-      if cmp.visible() then
-        cmp[method](opts)
-      else
-        cmp.complete()
-      end
-    end
-  end
   return Keymaps.table_by_lhs({
-    {"i", "<C-n>", complete_or("select_next_item", { behavior = cmp.SelectBehavior.Select })},
-    {"i", "<C-p>", complete_or("select_prev_item", { behavior = cmp.SelectBehavior.Select })},
+    {"i", "<C-n>", cmp.mapping.complete_or_select("next", { behavior = cmp.SelectBehavior.Select })},
+    {"i", "<C-p>", cmp.mapping.complete_or_select("prev", { behavior = cmp.SelectBehavior.Select })},
     {"i", "<C-b>", cmp.mapping.scroll_docs(-4)},
     {"i", "<C-f>", cmp.mapping.scroll_docs(4)},
     {"i", "<Tab>", cmp.mapping.confirm({ select = true }), "Accept selected item | select first"},
