@@ -47,18 +47,20 @@ end
 local function parse_complex_rhs(keymap)
   local rhs = keymap.rhs
   local lhs = keymap.lhs
-  if type(rhs) == "table" and rhs.value then
+  if type(rhs) ~= "table" then
+    return M.expand(rhs)
+  end
+  local tp = rhs.type
+  rhs.type = nil
+  if rhs.value and tp == "options" then
     local opts = rhs
     rhs = rhs.value
     opts.value = nil
-    for k,v in pairs(opts) do
-      keymap[k] = v
-    end
+    opts.type = nil
+    require("core.tbl").deep_update(keymap, opts)
+    return M.expand(rhs)
   end
-  if type(rhs) == "table" then
-    if #rhs == 1 and type(rhs[1]) == "string" then
-      return M.expand(rhs[1])
-    end
+  if tp == "layered" then
     return function()
       for _, fn in ipairs(rhs) do
         if fn() then
@@ -68,7 +70,7 @@ local function parse_complex_rhs(keymap)
       vim.api.nvim_feedkeys(M.termcodes(lhs), "n", false)
     end
   end
-  return M.expand(rhs)
+  return rhs
 end
 
 function M.parse(keymaps)
@@ -96,12 +98,14 @@ function M.parse(keymaps)
   return res
 end
 
-function M.toLazyKeySpec(keymaps)
+function M.to_lazy_keyspec(keymaps)
   local res = {}
   for i,keymap in ipairs(M.parse(keymaps)) do
     local spec = vim.deepcopy(keymap)
     spec[1] = spec.lhs
-    spec[2] = spec.rhs
+    if not spec.manual then
+      spec[2] = spec.rhs
+    end
     spec.nowait = spec.nowait or spec.wait == false -- Defaults to false
     if not spec.nowait then spec.nowait = nil end -- Shorter spec, omit defaults
     spec.lhs = nil
@@ -138,8 +142,14 @@ function M.cmd(command)
   return "<CMD>"..command.."<CR>"
 end
 
-function M.expr(value)
-  return {expr = true, value = value}
+function M.options_builder(opts)
+  return function(value)
+    return vim.tbl_deep_extend("force", {type="options", value = value}, opts)
+  end
+end
+
+function M.layered(...)
+  return {type="layered", ...}
 end
 
 function M.termcodes(keys)

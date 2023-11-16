@@ -13,14 +13,17 @@
 -- replace_keycodes: (boolean) When "expr" is true, replace keycodes in the resulting string (see nvim_replace_termcodes()). Returning nil from the Lua "callback" is equivalent to returning an empty string.
 -- silent: (boolean) - Do not echo mapping. Defaults to true
 -- script, unique - same as original :map-arguments
+-- manual: (boolean) - do not create mapping by lazy
 -- where StringArray is (string|string[]) but if string contains "," then it will be splitted
 
 local Keymaps = require("core.keymaps")
 local require = require("lazy.core.util").lazy_require
 local Util = require("util")
 
-local expr = Keymaps.expr
+local expr = Keymaps.options_builder({expr=true})
+local manual = Keymaps.options_builder({manual=true})
 local cmd = Keymaps.cmd
+local layered = Keymaps.layered
 local W = Keymaps.wrap_mod
 
 local M = {}
@@ -69,10 +72,15 @@ M.neo_tree = {
 }
 
 M.plugins["LuaSnip"] = {
-  {"i",   "<C-e>", {W("luasnip").expand()} },
-  {"i,s", "<C-k>", {W("luasnip").jump(1)} },
-  {"i,s", "<C-j>", {W("luasnip").jump(-1)} },
-  {"i,s", "<C-y>", {W("luasnip").change_choice(1)} },
+  {"i",   "<C-e>", layered(W("luasnip").expand()) },
+  {"i,s", "<C-k>", layered(W("luasnip").jump(1)) },
+  {"i,s", "<C-j>", layered(W("luasnip").jump(-1)) },
+  {"i,s", "<C-y>", layered(W("luasnip").change_choice(1)) },
+}
+
+M.plugins["neoscroll.nvim"] = {
+  {"n,v", "<C-u>", manual({'scroll', {'-vim.wo.scroll', 'true', '30'}}), "Smooth scrolling up"},
+  {"n,v", "<C-d>", manual({'scroll', {' vim.wo.scroll', 'true', '30'}}), "Smooth scrolling down"}
 }
 
 function M.cmp_mappings(cmp)

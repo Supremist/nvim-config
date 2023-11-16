@@ -467,17 +467,18 @@ return {
   },
 
   { "neoscroll.nvim",
-    event = "VeryLazy",
     opts = {
       respect_scrolloff = true,
       mappings = {},
     },
     config = function(_, opts)
       require("neoscroll").setup(opts)
-      local m = {}
-      m["<C-u>"] = {'scroll', {'-vim.wo.scroll', 'true', '30'}}
-      m["<C-d>"] = {'scroll', {' vim.wo.scroll', 'true', '30'}}
-      require("neoscroll.config").set_mappings(m)
+      local mapping = {}
+      local parse = require("core.keymaps").parse
+      for _, map in pairs(parse(require("config.keymaps").plugins["neoscroll.nvim"])) do
+        mapping[map.lhs] = map.rhs
+      end
+      require("neoscroll.config").set_mappings(mapping)
     end,
   }
 }
