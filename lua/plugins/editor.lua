@@ -1,4 +1,5 @@
 local Util = require("util")
+local optional = require("core.mod").optional
 
 local function call_tree_cmd(state, cmd_name)
   local cmd = state.commands[cmd_name]
@@ -19,14 +20,8 @@ end
 
 local function start_search()
   vim.api.nvim_feedkeys("zt", "n", false)
-  local anim = package.loaded["mini.animate"]
-  if anim then
-    anim.execute_after("scroll", function()
-      vim.api.nvim_input("/")
-    end)
-  else
-    vim.api.nvim_input("/")
-  end
+  local search = function() vim.api.nvim_input("/") end
+  optional("mini.animate", search).execute_after("scroll", search)
 end
 
 local function flash_jump(opts)
@@ -155,13 +150,6 @@ return {
       },
       commands = {
       },
-      window = {
-        mappings = {
-          ["<space>"] = "none",
-          ["/"] = "none",
-          ["F"] = "fuzzy_finder",
-        },
-      },
       default_component_configs = {
         indent = {
           with_expanders = true, -- if nil and file nesting is enabled, will enable expanders
@@ -172,14 +160,18 @@ return {
       },
     },
     config = function(_, opts)
+      local tbl = require("core.tbl")
+      local opts_patch = {}
+      for source, val in pairs(require("config.keymaps").neo_tree) do
+        opts_patch[source] = {window = {mappings = val}}
+      end
+      tbl.deep_update(opts_patch, opts_patch.global)
+      opts_patch.global = nil
+      tbl.deep_update(opts, opts_patch)
       require("neo-tree").setup(opts)
       vim.api.nvim_create_autocmd("TermClose", {
         pattern = "*lazygit",
-        callback = function()
-          if package.loaded["neo-tree.sources.git_status"] then
-            require("neo-tree.sources.git_status").refresh()
-          end
-        end,
+        callback = function() optional("neo-tree.sources.git_status").refresh() end,
       })
     end,
   },

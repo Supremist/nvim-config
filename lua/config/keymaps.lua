@@ -59,6 +59,14 @@ M.plugins["neo-tree.nvim"] = {
   {"n", "<L>e", "<L>fe", "Explorer NeoTree (root dir)", remap = true },
   {"n", "<L>E", "<L>fE", "Explorer NeoTree (cwd)", remap = true },
 }
+M.neo_tree = {
+  global = {},
+  filesystem = {
+    ["<space>"] = "none",
+    ["/"] = "none",
+    ["F"] = "fuzzy_finder",
+  },
+}
 
 M.plugins["LuaSnip"] = {
   {"i",   "<C-e>", {W("luasnip").expand()} },

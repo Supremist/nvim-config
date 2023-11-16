@@ -102,7 +102,8 @@ function M.toLazyKeySpec(keymaps)
     local spec = vim.deepcopy(keymap)
     spec[1] = spec.lhs
     spec[2] = spec.rhs
-    spec.nowait = not spec.wait
+    spec.nowait = spec.nowait or spec.wait == false -- Defaults to false
+    if not spec.nowait then spec.nowait = nil end -- Shorter spec, omit defaults
     spec.lhs = nil
     spec.rhs = nil
     spec.wait = nil

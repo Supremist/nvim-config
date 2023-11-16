@@ -11,4 +11,11 @@ function M.deep_update(dst, src)
   return dst
 end
 
+M.dummy = setmetatable({}, {
+  __index = function (t, k)
+    return t
+  end,
+  __call = function (t, ...) end}
+)
+
 return M
