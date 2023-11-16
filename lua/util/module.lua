@@ -15,8 +15,11 @@ function M.unload(module)
   end
 end
 
-local function find_preloader(module)
-  for _, searcher in ipairs(package.searchers) do
+function M.find_preloader(module)
+  if package.preload[module] then
+    return package.preload[module]
+  end
+  for _, searcher in ipairs(package.searchers or package.loaders) do
     local loader = searcher(module)
     if type(loader) == "function" then
       package.preload[module] = loader
@@ -35,7 +38,7 @@ function M.require(opts)
     if mod then
       return mod
     end
-    if find_preloader(module) == nil then
+    if M.find_preloader(module) == nil then
       return
     end
   end
