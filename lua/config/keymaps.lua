@@ -62,8 +62,8 @@ M.plugins["neo-tree.nvim"] = {
 
 M.plugins["LuaSnip"] = {
   {"i",   "<C-e>", {W("luasnip").expand()} },
-  {"i,s", "<C-j>", {W("luasnip").jump(1)} },
-  {"i,s", "<C-k>", {W("luasnip").jump(-1)} },
+  {"i,s", "<C-k>", {W("luasnip").jump(1)} },
+  {"i,s", "<C-j>", {W("luasnip").jump(-1)} },
   {"i,s", "<C-y>", {W("luasnip").change_choice(1)} },
 }
 
