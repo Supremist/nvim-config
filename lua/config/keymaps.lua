@@ -71,6 +71,15 @@ M.neo_tree = {
   },
 }
 
+M.plugins["flash.nvim"] = {
+    {"n,x,",  "#", W("flash").jump({search = { mode = "fuzzy", incremental = true}}), "Fuzzy Flash" },
+    {"n,x,o", "s", W("flash").jump(), "Flash" },
+    {"n,x,o", "S", W("flash").treesitter(), "Flash Treesitter" },
+    {"o",     "r", W("flash").remote(), "Remote Flash" },
+    {"o,x",   "R", W("flash").treesitter_search(), "Treesitter Search" },
+    {"c", "<c-s>", W("flash").toggle(), "Toggle Flash Search" },
+}
+
 M.plugins["LuaSnip"] = {
   {"i",   "<C-e>", layered(W("luasnip").expand()) },
   {"i,s", "<C-k>", layered(W("luasnip").jump(1)) },

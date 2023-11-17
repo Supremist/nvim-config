@@ -1,127 +1,6 @@
 local Util = require("util")
 local optional = require("core.mod").optional
 
-local function call_tree_cmd(state, cmd_name)
-  local cmd = state.commands[cmd_name]
-  if cmd then
-    cmd(state)
-  else
-    vim.print("Failed to call neo-tree command: " .. cmd_name)
-  end
-end
-
-local function get_tree_state(winid)
-  local bufn = vim.api.nvim_win_get_buf(winid)
-  local buf_type = vim.api.nvim_buf_get_option(bufn, "filetype")
-  if buf_type == "neo-tree" then
-    return require("neo-tree.sources.manager").get_state_for_window(winid)
-  end
-end
-
-local function start_search()
-  vim.api.nvim_feedkeys("zt", "n", false)
-  local search = function() vim.api.nvim_input("/") end
-  optional("mini.animate", search).execute_after("scroll", search)
-end
-
-local function flash_jump(opts)
-  local state = require("flash.repeat").get_state("jump", opts)
-  state:loop({abort = opts.abort})
-  return state
-end
-
-local function process_search_jump(match, state)
-  local Jump = require("flash.plugins.search")
-  local tree_state = get_tree_state(match.win)
-  if tree_state then
-    -- do not save jumps to neo-tree in history
-    state.opts.jump.register = false
-    state.opts.jump.history = false
-    Jump.jump(match, state)
-    vim.api.nvim_create_autocmd("CmdlineLeave", {
-      once = true,
-      callback = vim.schedule_wrap(function()
-        -- jumped on tree node, open it
-        local node = tree_state.tree:get_node()
-        local was_loaded = node.loaded
-        if not node:is_expanded() then
-          call_tree_cmd(tree_state, "open")
-        end
-        if node.type == "directory" then
-          if was_loaded then
-            vim.schedule(start_search)
-          else
-            require("neo-tree.events").subscribe({
-              event = "after_render",
-              once = true,
-              handler = start_search,
-              id = "trigger_search_continuous",
-            })
-          end
-        end
-      end),
-    })
-  else
-    Jump.jump(match, state)
-  end
-end
-
-local function flash_in_telescope(prompt_bufnr)
-  flash_jump({
-    pattern = "^.",
-    prompt = { enabled = false },
-    label = { after = {0, -1}, exclude = "jk" },
-    highlight = { backdrop = false, matches = false },
-    search = {
-      mode = "search",
-      exclude = {
-        function(win)
-          return vim.bo[vim.api.nvim_win_get_buf(win)].filetype ~= "TelescopeResults"
-        end,
-      },
-    },
-    action = function(match)
-      local picker = require("telescope.actions.state").get_current_picker(prompt_bufnr)
-      picker:set_selection(match.pos[1] - 1)
-      require("telescope.actions").select_default(prompt_bufnr)
-    end,
-    actions = {
-      j = function(state, char)
-        local picker = require("telescope.actions.state").get_current_picker(prompt_bufnr)
-        picker:move_selection(1)
-      end,
-      k = function(state, char)
-        local picker = require("telescope.actions.state").get_current_picker(prompt_bufnr)
-        picker:move_selection(-1)
-      end,
-      [vim.api.nvim_replace_termcodes("<Down>", true, true, true)] = function(state, char)
-        local picker = require("telescope.actions.state").get_current_picker(prompt_bufnr)
-        picker:move_selection(1)
-      end,
-      [vim.api.nvim_replace_termcodes("<Up>", true, true, true)] = function(state, char)
-        local picker = require("telescope.actions.state").get_current_picker(prompt_bufnr)
-        picker:move_selection(-1)
-      end,
-      [vim.api.nvim_replace_termcodes("<CR>", true, true, true)] = function(state, char)
-        require("telescope.actions").select_default(prompt_bufnr)
-        return false
-      end,
-    },
-    abort = function()
-      vim.api.nvim_input("A")
-    end,
-    labeler = function(matches, state)
-      local labels = state:labels()
-      table.sort(matches, function(a, b)
-        return a.pos[1] > b.pos[1]
-      end)
-      local len = math.min(#labels, #matches)
-      for i = 1, len do
-        matches[i].label = labels[i]
-      end
-    end,
-  })
-end
 
 return {
 
@@ -190,8 +69,6 @@ return {
   -- fuzzy finder
   { "telescope.nvim",
     cmd = "Telescope",
-
-    deactivate = function() end,
 
     keys = {
       { "<leader>,", "<cmd>Telescope buffers show_all_buffers=true<cr>", desc = "Switch Buffer" },
@@ -300,51 +177,16 @@ return {
             ["<C-b>"] = function(...)
               return require("telescope.actions").preview_scrolling_up(...)
             end,
-            ["<c-s>"] = flash_in_telescope,
+            --["<c-s>"] = flash_in_telescope,
           },
           n = {
             ["q"] = function(...)
               return require("telescope.actions").close(...)
             end,
-            s = flash_in_telescope,
+            --s = flash_in_telescope,
           },
         },
       },
-    },
-  },
-
-  -- Flash enhances the built-in search functionality by showing labels
-  -- at the end of each match, letting you quickly jump to a specific
-  -- location.
-  { "flash.nvim",
-    event = "VeryLazy",
-    ---@type Flash.Config
-    opts = {
-      labels = "asdfghjklqwertyuiopzxcvbnm1234567890ASDFGHJKLQWERTYUIOPZXCVBNM",
-      label = {
-        uppercase = false,
-        reuse = "all",
-      },
-      config = function(c)
-        if c.mode == "search" then
-          c.action = process_search_jump
-        end
-      end,
-    },
-    deactivate = function() end,
-    -- stylua: ignore
-    keys = {
-      { "#", mode = { "n", "x"}, function() require("flash").jump({
-        search = {
-          mode = "fuzzy",
-          incremental = true,
-        },
-      }) end, desc = "Flash" },
-      { "s", mode = { "n", "x", "o" }, function() require("flash").jump() end, desc = "Flash" },
-      { "S", mode = { "n", "x", "o" }, function() require("flash").treesitter() end, desc = "Flash Treesitter" },
-      { "r", mode = "o", function() require("flash").remote() end, desc = "Remote Flash" },
-      { "R", mode = { "o", "x" }, function() require("flash").treesitter_search() end, desc = "Treesitter Search" },
-      { "<c-s>", mode = { "c" }, function() require("flash").toggle() end, desc = "Toggle Flash Search" },
     },
   },
 
