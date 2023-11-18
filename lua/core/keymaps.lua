@@ -30,7 +30,29 @@ function M.expand(str)
   return res
 end
 
-function M.split(str, sep)
+local function parse_modes(str)
+  if str == nil or type(str) == "table" then
+    return str
+  end
+  if #str == 0 then -- "" = "nvo"
+    str = "nvo"
+  end
+  local res = {}
+  for i=1,#str do
+    local c = str:sub(i,i)
+    if c == "!" then
+      c = "ic"
+    elseif c == "v" then
+      c = "xs"
+    end
+    for j=1,#c do
+      table.insert(res, c:sub(j,j))
+    end
+  end
+  return res
+end
+
+local function split(str, sep)
   if str == nil or type(str) == "table" then
     return str
   end
@@ -84,8 +106,8 @@ function M.parse(keymaps)
       spec.lhs = M.expand(spec[2])
       spec.rhs = spec[3]
       spec.rhs = parse_complex_rhs(spec)
-      spec.mode = M.split(spec[1])
-      spec.ft = M.split(spec.ft)
+      spec.mode = parse_modes(spec[1])
+      spec.ft = split(spec.ft)
       spec.desc = spec[4]
       spec.buffer = keymap.buffer == true and 0 or keymap.buffer
       spec[1] = nil

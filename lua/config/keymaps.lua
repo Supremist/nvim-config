@@ -16,6 +16,20 @@
 -- manual: (boolean) - do not create mapping by lazy
 -- where StringArray is (string|string[]) but if string contains "," then it will be splitted
 
+-- Mapping modes:
+-- n: Normal mode
+-- x: Visual mode - When typing commands while the Visual area is highlighted.
+-- s: Select mode - like Visual mode but typing text replaces the selection.
+-- o: Operator-pending mode - When an operator is pending. See :h omap-info
+-- i: Insert mode - These are also used in Replace mode.
+-- c: Command-line mode - When entering a ":" or "/" command.
+-- t: Terminal mode - When typing in a :terminal buffer.
+-- Combinations:
+-- l: ic and unique Lang-Arg - For language mapping
+-- v: xs - Visual and Select
+-- !: ic - Insert and Command
+-- "": nvo or nxso - default :map behavior
+
 local Keymaps = require("core.keymaps")
 local require = require("lazy.core.util").lazy_require
 local Util = require("util")
@@ -33,22 +47,22 @@ M.mappings = {}
 M.global = {
 -- Better up/down
 -- mode   lhs  rhs                                description
-  {"n,x", "k", expr("v:count == 0 ? 'gk' : 'k'"), "move up one *wrapped* line"},
-  {"n,x", "j", expr("v:count == 0 ? 'gj' : 'j'"), "move down one *wrapped* line"},
+  {"nx", "k", expr("v:count == 0 ? 'gk' : 'k'"), "move up one *wrapped* line"},
+  {"nx", "j", expr("v:count == 0 ? 'gj' : 'j'"), "move down one *wrapped* line"},
 
-  {"n,x", "↑", expr("v:count == 0 ? 'gk' : 'k'"), "move up one *wrapped* line"},
-  {"n,x", "↓", expr("v:count == 0 ? 'gj' : 'j'"), "move down one *wrapped* line"},
+  {"nx", "↑", expr("v:count == 0 ? 'gk' : 'k'"), "move up one *wrapped* line"},
+  {"nx", "↓", expr("v:count == 0 ? 'gj' : 'j'"), "move down one *wrapped* line"},
 
   {"i", "↑", "<C-o>gk", "move up one *wrapped* line"},
   {"i", "↓", "<C-o>gj", "move down one *wrapped* line"},
 
 --Move lines
-  {"n", "<A-j>", "<CMD>m .+1<CR>==", "Move down"},
-  {"n", "<A-k>", "<CMD>m .-2<CR>==", "Move up"},
-  {"i", "<A-j>", "<ESC><CMD>m .+1<CR>==gi", "Move down"},
-  {"i", "<A-k>", "<ESC><CMD>m .-2<CR>==gi", "Move up"},
-  {"v", "<A-j>", ":m '>+1<CR>gv=gv", "Move down"},
-  {"v", "<A-k>", ":m '<-2<CR>gv=gv", "Move up"},
+  {"n", "<A-j>", "<CMD>m .+1<CR>==", "Move lines down"},
+  {"i", "<A-j>", "<ESC><CMD>m .+1<CR>==gi", "Move lines down"},
+  {"v", "<A-j>", ":m '>+1<CR>gv=gv", "Move lines down"},
+  {"n", "<A-k>", "<CMD>m .-2<CR>==", "Move lines up"},
+  {"i", "<A-k>", "<ESC><CMD>m .-2<CR>==gi", "Move lines up"},
+  {"v", "<A-k>", ":m '<-2<CR>gv=gv", "Move lines up"},
 
 -- Consistant mappings
   {"i", "<C-H>", "<C-w>", "delete previous word"}, -- <C-BS> is <C-H> because of terminal app
@@ -72,24 +86,24 @@ M.neo_tree = {
 }
 
 M.plugins["flash.nvim"] = {
-    {"n,x,",  "#", W("flash").jump({search = { mode = "fuzzy", incremental = true}}), "Fuzzy Flash" },
-    {"n,x,o", "s", W("flash").jump(), "Flash" },
-    {"n,x,o", "S", W("flash").treesitter(), "Flash Treesitter" },
-    {"o",     "r", W("flash").remote(), "Remote Flash" },
-    {"o,x",   "R", W("flash").treesitter_search(), "Treesitter Search" },
-    {"c", "<c-s>", W("flash").toggle(), "Toggle Flash Search" },
+  {"nx",  "#", W("flash").jump({search = { mode = "fuzzy", incremental = true}}), "Fuzzy Flash" },
+  {"nxo", "s", W("flash").jump(), "Flash" },
+  {"nxo", "S", W("flash").treesitter(), "Flash Treesitter" },
+  {"o",   "r", W("flash").remote(), "Remote Flash" },
+  {"ox",  "R", W("flash").treesitter_search(), "Treesitter Search" },
+  {"c","<c-s>", W("flash").toggle(), "Toggle Flash Search" },
 }
 
 M.plugins["LuaSnip"] = {
-  {"i",   "<C-e>", layered(W("luasnip").expand()) },
-  {"i,s", "<C-k>", layered(W("luasnip").jump(1)) },
-  {"i,s", "<C-j>", layered(W("luasnip").jump(-1)) },
-  {"i,s", "<C-y>", layered(W("luasnip").change_choice(1)) },
+  {"i",  "<C-e>", layered(W("luasnip").expand()) },
+  {"is", "<C-k>", layered(W("luasnip").jump(1)) },
+  {"is", "<C-j>", layered(W("luasnip").jump(-1)) },
+  {"is", "<C-y>", layered(W("luasnip").change_choice(1)) },
 }
 
 M.plugins["neoscroll.nvim"] = {
-  {"n,v", "<C-u>", manual({'scroll', {'-vim.wo.scroll', 'true', '30'}}), "Smooth scrolling up"},
-  {"n,v", "<C-d>", manual({'scroll', {' vim.wo.scroll', 'true', '30'}}), "Smooth scrolling down"}
+  {"nv", "<C-u>", manual({'scroll', {'-vim.wo.scroll', 'true', '30'}}), "Smooth scrolling up"},
+  {"nv", "<C-d>", manual({'scroll', {' vim.wo.scroll', 'true', '30'}}), "Smooth scrolling down"}
 }
 
 function M.cmp_mappings(cmp)
