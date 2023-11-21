@@ -18,19 +18,36 @@ end
 local M = {}
 local ft_augroup = vim.api.nvim_create_augroup("FileTypeKeymapsGlobal", {clear = true})
 
+function M.set_shorthands(shorts)
+  M.shorthands = shorts
+end
+
+local function has_brackets(str)
+  return (str[1] == "<" and str[#str] == ">")
+end
+
 function M.expand(str)
   if type(str) ~= "string" then
     return str
   end
-  local res = str:gsub("<[lL]>", "<Leader>")
-  res = res:gsub("<[lL][lL]>", "<LocalLeader>")
-  res = res:gsub("<[pP]>", "<Plug>")
-  res = res:gsub("<[cC]%-↑>", "<C-Up>")
-  res = res:gsub("<[cC]%-↓>", "<C-Down>")
-  res = res:gsub("↑", "<Up>")
-  res = res:gsub("↓", "<Down>")
-  res = res:gsub("↲", "<CR>")
-  return res
+  for key, shorts in pairs(M.shorthands) do
+    local stripped = has_brackets(key) and key:sub(2, #key-2) or key
+    for _, short in ipairs(shorts) do
+      if not has_brackets(short) then
+        str = str:gsub("([<%-])"..short..">", "%1"..stripped..">")
+      end
+      str = str:gsub(short, key)
+    end
+  end
+  return str
+end
+
+function M.key_labels()
+  local labels = {}
+  for key, shorts in pairs(M.shorthands) do
+    labels[key] = shorts[1]
+  end
+  return labels
 end
 
 local function parse_modes(str)
@@ -139,6 +156,31 @@ function M.to_lazy_keyspec(keymaps)
     res[i] = spec
   end
   return res
+end
+
+function M.to_which_key_spec(keymaps)
+  local res = {}
+  local modes = {}
+  for _, keymap in ipairs(M.parse(keymaps)) do
+    for _, mode in ipairs(keymap.mode) do
+      modes[mode] = true
+    end
+    local spec = vim.deepcopy(keymap)
+    spec.mode = nil
+    spec.lhs = nil
+    if spec.rhs == "..." then
+      spec.name = spec.desc
+    else
+      spec[1] = spec.rhs
+      spec[2] = spec.desc
+    end
+    res[keymap.lhs] = spec
+  end
+  local opts = {mode = {}}
+  for mode, _ in pairs(modes) do
+    table.insert(opts.mode, mode)
+  end
+  return res, opts
 end
 
 function M.table_by_mode(keymaps)

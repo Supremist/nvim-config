@@ -45,6 +45,37 @@ local M = {}
 M.plugins = {}
 M.mappings = {}
 
+Keymaps.set_shorthands({
+  ["<Leader>"] = {"<L>", "<l>"},
+  ["<LocalLeader>"] = {"<LL>", "<ll>"},
+  ["<Plug>"] = {"<P>", "<p>"},
+  ["<Up>"] = {"↑"},
+  ["<Down>"] = {"↓"},
+  ["<Right>"] = {"→"},
+  ["<Left>"] = {"←"},
+  ["<Cr>"] = {"↲"},
+  ["<Space>"] = {"␣"},
+  ["<Tab>"] = {"⭾"},
+})
+
+M.which_key_groups = {
+  {"n", "g",    "...", "+goto" },
+  {"n", "gz",   "...", "+surround" },
+  {"n", "]",    "...", "+next" },
+  {"n", "[",    "...", "+prev" },
+  {"n", "<L>⭾", "...", "+tabs" },
+  {"n", "<L>b", "...", "+buffer" },
+  {"n", "<L>c", "...", "+code" },
+  {"n", "<L>f", "...", "+file/find" },
+  {"nv","<L>g", "...", "+git" },
+  {"n", "<L>gh","...", "+hunks" },
+  {"n", "<L>q", "...", "+quit/session" },
+  {"n", "<L>s", "...", "+search" },
+  {"n", "<L>u", "...", "+ui" },
+  {"n", "<L>w", "...", "+windows" },
+  {"n", "<L>x", "...", "+diagnostics/quickfix" },
+}
+
 M.global = {
 -- Better up/down
 -- mode   lhs  rhs                                description
@@ -92,7 +123,7 @@ M.plugins["flash.nvim"] = {
   {"nxo", "S", W("flash").treesitter(), "Flash Treesitter" },
   {"o",   "r", W("flash").remote(), "Remote Flash" },
   {"ox",  "R", W("flash").treesitter_search(), "Treesitter Search" },
-  {"c","<c-s>", W("flash").toggle(), "Toggle Flash Search" },
+  {"c","<C-s>", W("flash").toggle(), "Toggle Flash Search" },
 }
 
 M.plugins["telescope.nvim"] = {
@@ -167,15 +198,15 @@ M.plugins["telescope.nvim"] = {
   },
 }
 
-M.telescope_mappings = {
+M.telescope_mappings = Keymaps.table_by_mode {
   {"i", "<C-t>", F("trouble.providers.telescope").open_with_trouble()},
   {"i", "<A-t>", F("trouble.providers.telescope").open_selected_with_trouble()},
-  {"i", "<a-i>", function()
+  {"i", "<A-i>", function()
     local action_state = require("telescope.actions.state")
     local line = action_state.get_current_line()
     Util.telescope("find_files", { no_ignore = true, default_text = line })()
   end },
-  {"i", "<a-h>", function()
+  {"i", "<A-h>", function()
     local action_state = require("telescope.actions.state")
     local line = action_state.get_current_line()
     Util.telescope("find_files", { hidden = true, default_text = line })()

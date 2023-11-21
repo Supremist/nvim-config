@@ -74,7 +74,7 @@ return {
       defaults = {
         prompt_prefix = " ",
         selection_caret = " ",
-        mappings = require("core.keymaps").table_by_mode(require("config.keymaps").telescope_mappings),
+        mappings = require("config.keymaps").telescope_mappings,
       },
     },
   },
@@ -83,31 +83,14 @@ return {
   -- with the active keybindings of the command you started typing.
   { "which-key.nvim",
     event = "VeryLazy",
-    opts = {
-      plugins = { spelling = true },
-      defaults = {
-        mode = { "n", "v" },
-        ["g"] = { name = "+goto" },
-        ["gz"] = { name = "+surround" },
-        ["]"] = { name = "+next" },
-        ["["] = { name = "+prev" },
-        ["<leader><tab>"] = { name = "+tabs" },
-        ["<leader>b"] = { name = "+buffer" },
-        ["<leader>c"] = { name = "+code" },
-        ["<leader>f"] = { name = "+file/find" },
-        ["<leader>g"] = { name = "+git" },
-        ["<leader>gh"] = { name = "+hunks" },
-        ["<leader>q"] = { name = "+quit/session" },
-        ["<leader>s"] = { name = "+search" },
-        ["<leader>u"] = { name = "+ui" },
-        ["<leader>w"] = { name = "+windows" },
-        ["<leader>x"] = { name = "+diagnostics/quickfix" },
-      },
-    },
+    opts = {},
     config = function(_, opts)
       local wk = require("which-key")
+      local K = require("core.keymaps")
+      opts.key_labels = K.key_labels()
+      local maps, map_opts = K.to_lazy_keyspec(require("config.keymaps").which_key_groups)
       wk.setup(opts)
-      wk.register(opts.defaults)
+      wk.register(maps, map_opts)
     end,
   },
 
