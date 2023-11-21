@@ -39,6 +39,7 @@ local manual = Keymaps.options_builder({manual=true})
 local cmd = Keymaps.cmd
 local layered = Keymaps.layered
 local W = Keymaps.wrap_mod
+local F = Keymaps.forward_mod
 
 local M = {}
 M.plugins = {}
@@ -93,6 +94,111 @@ M.plugins["flash.nvim"] = {
   {"ox",  "R", W("flash").treesitter_search(), "Treesitter Search" },
   {"c","<c-s>", W("flash").toggle(), "Toggle Flash Search" },
 }
+
+M.plugins["telescope.nvim"] = {
+  { "n", "<L>,", "<cmd>Telescope buffers show_all_buffers=true<cr>", "Switch Buffer" },
+  { "n", "<L>/", Util.telescope("live_grep"), "Grep (root dir)" },
+  { "n", "<L>:", "<cmd>Telescope command_history<cr>", "Command History" },
+  { "n", "<L><space>", Util.telescope("files"), "Find Files (root dir)" },
+  -- find
+  { "n", "<L>fb", "<cmd>Telescope buffers<cr>", "Buffers" },
+  { "n", "<L>ff", Util.telescope("files"), "Find Files (root dir)" },
+  { "n", "<L>fF", Util.telescope("files", { cwd = false }), "Find Files (cwd)" },
+  { "n", "<L>fr", "<cmd>Telescope oldfiles<cr>", "Recent" },
+  { "n", "<L>fR", Util.telescope("oldfiles", { cwd = vim.loop.cwd() }), "Recent (cwd)" },
+  -- git
+  { "n", "<L>gc", "<cmd>Telescope git_commits<CR>", "commits" },
+  { "n", "<L>gs", "<cmd>Telescope git_status<CR>", "status" },
+  -- search
+  { "n", '<L>s"', "<cmd>Telescope registers<cr>", "Registers" },
+  { "n", "<L>sa", "<cmd>Telescope autocommands<cr>", "Auto Commands" },
+  { "n", "<L>sb", "<cmd>Telescope current_buffer_fuzzy_find<cr>", "Buffer" },
+  { "n", "<L>sc", "<cmd>Telescope command_history<cr>", "Command History" },
+  { "n", "<L>sC", "<cmd>Telescope commands<cr>", "Commands" },
+  { "n", "<L>sd", "<cmd>Telescope diagnostics bufnr=0<cr>", "Document diagnostics" },
+  { "n", "<L>sD", "<cmd>Telescope diagnostics<cr>", "Workspace diagnostics" },
+  { "n", "<L>sg", Util.telescope("live_grep"), "Grep (root dir)" },
+  { "n", "<L>sG", Util.telescope("live_grep", { cwd = false }), "Grep (cwd)" },
+  { "n", "<L>sh", "<cmd>Telescope help_tags<cr>", "Help Pages" },
+  { "n", "<L>sH", "<cmd>Telescope highlights<cr>", "Search Highlight Groups" },
+  { "n", "<L>sk", "<cmd>Telescope keymaps<cr>", "Key Maps" },
+  { "n", "<L>sM", "<cmd>Telescope man_pages<cr>", "Man Pages" },
+  { "n", "<L>sm", "<cmd>Telescope marks<cr>", "Jump to Mark" },
+  { "n", "<L>so", "<cmd>Telescope vim_options<cr>", "Options" },
+  { "n", "<L>sR", "<cmd>Telescope resume<cr>", "Resume" },
+  { "n", "<L>sw", Util.telescope("grep_string", { word_match = "-w" }), "Word (root dir)" },
+  { "n", "<L>sW", Util.telescope("grep_string", { cwd = false, word_match = "-w" }), "Word (cwd)" },
+  { "v", "<L>sw", Util.telescope("grep_string"), "Selection (root dir)" },
+  { "v", "<L>sW", Util.telescope("grep_string", { cwd = false }), "Selection (cwd)" },
+  { "n", "<L>uC", Util.telescope("colorscheme", { enable_preview = true }), "Colorscheme with preview" },
+  { "n", "<L>ss",
+    Util.telescope("lsp_document_symbols", {
+      symbols = {
+        "Class",
+        "Function",
+        "Method",
+        "Constructor",
+        "Interface",
+        "Module",
+        "Struct",
+        "Trait",
+        "Field",
+        "Property",
+      },
+    }),
+    "Goto Symbol",
+  },
+  { "n", "<L>sS",
+    Util.telescope("lsp_dynamic_workspace_symbols", {
+      symbols = {
+        "Class",
+        "Function",
+        "Method",
+        "Constructor",
+        "Interface",
+        "Module",
+        "Struct",
+        "Trait",
+        "Field",
+        "Property",
+      },
+    }),
+    "Goto Symbol (Workspace)",
+  },
+}
+
+M.telescope_mappings = {
+  {"i", "<C-t>", F("trouble.providers.telescope").open_with_trouble()},
+  {"i", "<A-t>", F("trouble.providers.telescope").open_selected_with_trouble()},
+  {"i", "<a-i>", function()
+    local action_state = require("telescope.actions.state")
+    local line = action_state.get_current_line()
+    Util.telescope("find_files", { no_ignore = true, default_text = line })()
+  end },
+  {"i", "<a-h>", function()
+    local action_state = require("telescope.actions.state")
+    local line = action_state.get_current_line()
+    Util.telescope("find_files", { hidden = true, default_text = line })()
+  end },
+  {"i", "<C-↓>", F("telescope.actions").cycle_history_next()},
+  {"i", "<C-↑>", F("telescope.actions").cycle_history_prev()},
+  {"i", "<C-f>", F("telescope.actions").preview_scrolling_down()},
+  {"i", "<C-b>", F("telescope.actions").preview_scrolling_up()},
+  {"i", "<C-s>", F("flash").telescope()},
+  {"n", "s", F("flash").telescope()},
+  {"n", "q", F("telescope.actions").close()},
+}
+
+function M.flash_in_telescope(buf)
+  local act = W("telescope.actions")
+  return Keymaps.table_by_lhs({
+    {"n", "j", act.move_selection_next(buf)},
+    {"n", "k", act.move_selection_previous(buf)},
+    {"n", "↓", act.move_selection_next(buf)},
+    {"n", "↑", act.move_selection_previous(buf)},
+    {"n", "↲", act.select_default(buf)},
+  }, {termcodes = true, nomode = true})
+end
 
 M.plugins["LuaSnip"] = {
   {"i",  "<C-e>", layered(W("luasnip").expand()) },

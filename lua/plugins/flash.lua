@@ -12,6 +12,35 @@ local spec = { "flash.nvim",
       uppercase = false,
       reuse = "all",
     },
+    modes = {
+      telescope = {
+        pattern = "^.",
+        prompt = { enabled = false },
+        label = { after = {0, -1}, exclude = "jk" },
+        highlight = { backdrop = false, matches = false },
+        search = {
+          mode = "search",
+          exclude = {
+            function(win)
+              return vim.bo[vim.api.nvim_win_get_buf(win)].filetype ~= "TelescopeResults"
+            end,
+          },
+        },
+        abort = function()
+          vim.api.nvim_input("A")
+        end,
+        labeler = function(matches, state)
+          local labels = state:labels()
+          table.sort(matches, function(a, b)
+            return a.pos[1] > b.pos[1]
+          end)
+          local len = math.min(#labels, #matches)
+          for i = 1, len do
+            matches[i].label = labels[i]
+          end
+        end,
+      }
+    },
   },
 }
 
@@ -63,61 +92,17 @@ function Flash.process_search_jump(match, state)
   })
 end
 
-local function flash_in_telescope(prompt_bufnr)
-  Flash.jump({
-    pattern = "^.",
-    prompt = { enabled = false },
-    label = { after = {0, -1}, exclude = "jk" },
-    highlight = { backdrop = false, matches = false },
-    search = {
-      mode = "search",
-      exclude = {
-        function(win)
-          return vim.bo[vim.api.nvim_win_get_buf(win)].filetype ~= "TelescopeResults"
-        end,
-      },
-    },
-    action = function(match)
-      local picker = require("telescope.actions.state").get_current_picker(prompt_bufnr)
-      picker:set_selection(match.pos[1] - 1)
-      require("telescope.actions").select_default(prompt_bufnr)
-    end,
-    actions = {
-      j = function(state, char)
-        local picker = require("telescope.actions.state").get_current_picker(prompt_bufnr)
-        picker:move_selection(1)
-      end,
-      k = function(state, char)
-        local picker = require("telescope.actions.state").get_current_picker(prompt_bufnr)
-        picker:move_selection(-1)
-      end,
-      [vim.api.nvim_replace_termcodes("<Down>", true, true, true)] = function(state, char)
-        local picker = require("telescope.actions.state").get_current_picker(prompt_bufnr)
-        picker:move_selection(1)
-      end,
-      [vim.api.nvim_replace_termcodes("<Up>", true, true, true)] = function(state, char)
-        local picker = require("telescope.actions.state").get_current_picker(prompt_bufnr)
-        picker:move_selection(-1)
-      end,
-      [vim.api.nvim_replace_termcodes("<CR>", true, true, true)] = function(state, char)
-        require("telescope.actions").select_default(prompt_bufnr)
-        return false
-      end,
-    },
-    abort = function()
-      vim.api.nvim_input("A")
-    end,
-    labeler = function(matches, state)
-      local labels = state:labels()
-      table.sort(matches, function(a, b)
-        return a.pos[1] > b.pos[1]
-      end)
-      local len = math.min(#labels, #matches)
-      for i = 1, len do
-        matches[i].label = labels[i]
-      end
-    end,
-  })
+function Flash.telescope(prompt_bufnr)
+  vim.print("started")
+  local opts = spec.opts.modes.telescope
+  opts.action = function(match)
+    local picker = require("telescope.actions.state").get_current_picker(prompt_bufnr)
+    picker:set_selection(match.pos[1] - 1)
+    require("telescope.actions").select_default(prompt_bufnr)
+  end
+  opts.actions = require("config.keymaps").flash_in_telescope(prompt_bufnr)
+  vim.print(opts)
+  Flash.jump(opts)
 end
 
 function spec.opts.config(conf)

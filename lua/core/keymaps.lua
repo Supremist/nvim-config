@@ -25,8 +25,11 @@ function M.expand(str)
   local res = str:gsub("<[lL]>", "<Leader>")
   res = res:gsub("<[lL][lL]>", "<LocalLeader>")
   res = res:gsub("<[pP]>", "<Plug>")
+  res = res:gsub("<[cC]%-↑>", "<C-Up>")
+  res = res:gsub("<[cC]%-↓>", "<C-Down>")
   res = res:gsub("↑", "<Up>")
   res = res:gsub("↓", "<Down>")
+  res = res:gsub("↲", "<CR>")
   return res
 end
 
@@ -149,12 +152,18 @@ function M.table_by_mode(keymaps)
   return res
 end
 
-function M.table_by_lhs(keymaps)
+function M.table_by_lhs(keymaps, opts)
   local res = {}
+  opts = opts or {}
   for _, k in ipairs(M.parse(keymaps)) do
-    res[k.lhs] = res[k.lhs] or {}
-    for _, mode in ipairs(k.mode) do
-      res[k.lhs][mode] = k.rhs
+    local lhs = opts.termcodes and M.termcodes(k.lhs) or k.lhs
+    if opts.nomode then
+      res[lhs] = k.rhs
+    else
+      res[lhs] = res[lhs] or {}
+      for _, mode in ipairs(k.mode) do
+        res[lhs][mode] = k.rhs
+      end
     end
   end
   return res
@@ -230,20 +239,46 @@ function M.del(keymaps)
   end
 end
 
-function M.wrap(provider)
-  return setmetatable({}, {__index = function(t, method_name) -- return fake object
-    return function(...) -- which will have fake methods with arg forwarding
+function M.wrap(provider, policy)
+  if not policy then
+    policy = "bind"
+  end
+  local get_real = function(t)
+    local obj = provider()
+    for _, key in ipairs(t.__path) do
+      obj = obj[key]
+    end
+    return obj
+  end
+  local policies = {
+    forward = function(t)
+      return function(...)
+        return get_real(t)(...)
+      end
+    end,
+    bind = function(t, ...)
       local args = {...}
-      return function(fallback) -- method returns a function which calls real object provider, and than method from real object
-        local unpack = table.unpack or unpack
-        local res = provider()[method_name](unpack(args))
+      local unpack = table.unpack or unpack
+      return function(fallback)
+        local res = get_real(t)(unpack(args))
         if res ~= nil and not res and fallback then
           fallback()
         end
         return res
       end
     end
-  end})
+  }
+  local mt = {
+    __index = function(tbl, key) -- return fake object
+      local val = setmetatable({__path = tbl.__path}, getmetatable(tbl))
+      table.insert(val.__path, key)
+      tbl[key] = val
+      return val
+    end,
+    __call = policies[policy]
+  }
+
+  return setmetatable({__path = {}}, mt)
 end
 
 -- Usage:
@@ -251,6 +286,10 @@ end
 -- where fn is a function which will call the method_name() with args
 function M.wrap_mod(module)
   return M.wrap(function() return require(module) end)
+end
+
+function M.forward_mod(module)
+  return M.wrap(function() return require(module) end, "forward")
 end
 
 return M
