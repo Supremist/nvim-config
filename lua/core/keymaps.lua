@@ -46,6 +46,7 @@ function M.key_labels()
   local labels = {}
   for key, shorts in pairs(M.shorthands) do
     labels[key] = shorts[1]
+    labels[key:lower()] = shorts[1]
   end
   return labels
 end

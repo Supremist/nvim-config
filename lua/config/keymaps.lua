@@ -111,7 +111,7 @@ M.plugins["neo-tree.nvim"] = {
 M.neo_tree = {
   global = {},
   filesystem = {
-    ["<space>"] = "none",
+    ["<Space>"] = "none",
     ["/"] = "none",
     ["F"] = "fuzzy_finder",
   },
@@ -130,7 +130,7 @@ M.plugins["telescope.nvim"] = {
   { "n", "<L>,", "<cmd>Telescope buffers show_all_buffers=true<cr>", "Switch Buffer" },
   { "n", "<L>/", Util.telescope("live_grep"), "Grep (root dir)" },
   { "n", "<L>:", "<cmd>Telescope command_history<cr>", "Command History" },
-  { "n", "<L><space>", Util.telescope("files"), "Find Files (root dir)" },
+  { "n", "<L><Space>", Util.telescope("files"), "Find Files (root dir)" },
   -- find
   { "n", "<L>fb", "<cmd>Telescope buffers<cr>", "Buffers" },
   { "n", "<L>ff", Util.telescope("files"), "Find Files (root dir)" },
@@ -241,6 +241,16 @@ M.plugins["LuaSnip"] = {
 M.plugins["neoscroll.nvim"] = {
   {"nv", "<C-u>", manual({'scroll', {'-vim.wo.scroll', 'true', '30'}}), "Smooth scrolling up"},
   {"nv", "<C-d>", manual({'scroll', {' vim.wo.scroll', 'true', '30'}}), "Smooth scrolling down"}
+}
+
+M.plugins["vim-illuminate"] = Keymaps.add_options({
+  {"n", "[[", W("illuminate").goto_next_reference(true), "Next Reference"},
+  {"n", "]]", W("illuminate").goto_prev_reference(true), "Prev Reference"},
+}, {})
+
+M.plugins["mini.bufremove"] = {
+  {"n", "<L>bd", W("mini.bufremove").delete(0, false), "Delete Buffer" },
+  {"n", "<L>bD", W("mini.bufremove").delete(0, true), "Delete Buffer (Force)" },
 }
 
 function M.cmp_mappings(cmp)
