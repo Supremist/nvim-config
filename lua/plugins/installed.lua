@@ -77,8 +77,7 @@ return {
   -- Treesitter is a new parser generator tool that we can
   -- use in Neovim to power faster and more accurate
   -- syntax highlighting.
-  { "nvim-treesitter/nvim-treesitter",
-    build = ":TSUpdate",
+  { "nvim-treesitter/nvim-treesitter", build = ":TSUpdate",
     -- dependencies = {
       -- {
         -- "nvim-treesitter/nvim-treesitter-textobjects",
@@ -91,4 +90,6 @@ return {
       -- },
     -- },
   },
+  { "lukas-reineke/indent-blankline.nvim", main = "ibl" },
+  { "HiPhish/rainbow-delimiters.nvim" },
 }

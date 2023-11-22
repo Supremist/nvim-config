@@ -143,5 +143,6 @@ return {
       end
       require("neoscroll.config").set_mappings(mapping)
     end,
-  }
+  },
+
 }

@@ -142,6 +142,21 @@ local group = {
   ["@lsp.type.typeParameter"] = {fg = syn.typeParam},
   ["@lsp.type.enummember"] = {fg = syn.namespace, style = "italic"},
   ["@lsp.typemod.operator.userDefined"] = {fg = pal.cyan.bright},
+  RainbowRed =    {fg = bg:blend(C(pal.red.dim),    0.9):to_css()},
+  RainbowYellow = {fg = bg:blend(C(pal.yellow.dim), 0.9):to_css()},
+  RainbowBlue =   {fg = bg:blend(C(pal.blue.dim),   0.9):to_css()},
+  RainbowOrange = {fg = bg:blend(C(pal.orange.dim), 0.9):to_css()},
+  RainbowGreen =  {fg = bg:blend(C(pal.green.dim),  0.9):to_css()},
+  RainbowViolet = {fg = bg:blend(C(pal.magenta.dim),0.9):to_css()},
+  RainbowCyan =   {fg = bg:blend(C(pal.cyan.base),  0.9):to_css()},
+
+  RainbowDimRed =    {fg = bg:blend(C(pal.red.dim),    0.4):to_css()},
+  RainbowDimYellow = {fg = bg:blend(C(pal.yellow.dim), 0.4):to_css()},
+  RainbowDimBlue =   {fg = bg:blend(C(pal.blue.dim),   0.4):to_css()},
+  RainbowDimOrange = {fg = bg:blend(C(pal.orange.dim), 0.4):to_css()},
+  RainbowDimGreen =  {fg = bg:blend(C(pal.green.dim),  0.4):to_css()},
+  RainbowDimViolet = {fg = bg:blend(C(pal.magenta.dim),0.4):to_css()},
+  RainbowDimCyan =   {fg = bg:blend(C(pal.cyan.base),  0.4):to_css()},
 }
 
   -- stylua: ignore stop
