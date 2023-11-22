@@ -215,6 +215,13 @@ function M.cmd(command)
   return "<CMD>"..command.."<CR>"
 end
 
+function M.add_options(keymaps, opts)
+  for _, keymap in pairs(keymaps) do
+    require("core.tbl").deep_update(keymap, opts)
+  end
+  return keymaps
+end
+
 function M.options_builder(opts)
   return function(value)
     return vim.tbl_deep_extend("force", {type="options", value = value}, opts)
@@ -246,7 +253,7 @@ function M._set_keymap(keymap, buffer)
   end
 end
 
-function M.set(keymaps)
+function M.set(keymaps, buffer)
   for _, keymap in ipairs(M.parse(keymaps)) do
     if keymap.ft then
       -- This will create keymap only for new buffers
@@ -260,7 +267,7 @@ function M.set(keymaps)
         end,
       })
     else
-      M._set_keymap(keymap)
+      M._set_keymap(keymap, buffer)
     end
   end
 end
@@ -312,7 +319,7 @@ function M.wrap(provider, policy)
   }
   local mt = {
     __index = function(tbl, key) -- return fake object
-      local val = setmetatable({__path = tbl.__path}, getmetatable(tbl))
+      local val = setmetatable({__path = vim.deepcopy(tbl.__path)}, getmetatable(tbl))
       table.insert(val.__path, key)
       tbl[key] = val
       return val

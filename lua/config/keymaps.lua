@@ -254,4 +254,22 @@ function M.cmp_mappings(cmp)
   })
 end
 
+function M.attach_gitsigns(buf)
+  local gs = W("gitsigns")
+  Keymaps.set({
+    {"n", "]h", gs.next_hunk(), "Next Hunk"},
+    {"n", "[h", gs.prev_hunk(), "Prev Hunk"},
+    {"nv", "<L>ghs", ":Gitsigns stage_hunk<CR>", "Stage Hunk"},
+    {"nv", "<L>ghr", ":Gitsigns reset_hunk<CR>", "Reset Hunk"},
+    {"n", "<L>ghS", gs.stage_buffer(), "Stage Buffer"},
+    {"n", "<L>ghu", gs.undo_stage_hunk(), "Undo Stage Hunk"},
+    {"n", "<L>ghR", gs.reset_buffer(), "Reset Buffer"},
+    {"n", "<L>ghp", gs.preview_hunk(), "Preview Hunk"},
+    {"n", "<L>ghb", gs.blame_line({ full = true }), "Blame Line"},
+    {"n", "<L>ghd", gs.diffthis(), "Diff This"},
+    {"n", "<L>ghD", gs.diffthis("~"), "Diff This ~"},
+    {"ox", "ih", ":<C-U>Gitsigns select_hunk<CR>", "GitSigns Select Hunk"},
+  }, buf)
+end
+
 return M
