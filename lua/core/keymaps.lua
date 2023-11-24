@@ -118,6 +118,9 @@ end
 
 function M.parse(keymaps)
   local res = {}
+  if not keymaps then
+    return {}
+  end
   if #keymaps == 0 or keymaps[1][1] == nil then
     return keymaps -- Already parsed
   end

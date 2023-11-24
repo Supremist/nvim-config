@@ -59,7 +59,7 @@ return {
     lazy = false,
 	priority = 1000,
 	opts = function(plug, opts)
-	  return require("util.module").require({"theme.nightfox_override", reload = true}).get_options("carbonfox")
+	  return require("core.mod").reload("theme.nightfox_override").get_options("carbonfox")
 	end,
 	config = function(plug, opts)
 	  require("nightfox").setup(opts)

@@ -1,3 +1,4 @@
+-- This is not hot-reloadable. Restart nvim to update this config
 require("lazy").setup({
   spec = {
     { import = "plugins" },
@@ -47,11 +48,4 @@ require("lazy").setup({
       },
     },
   },
-})
-
-vim.api.nvim_create_autocmd("User", {
- pattern = "VeryLazy",
- callback = function()
-  -- require("theme").setup()
- end,
 })
