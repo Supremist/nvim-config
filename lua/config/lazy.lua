@@ -1,7 +1,9 @@
 -- This is not hot-reloadable. Restart nvim to update this config
 require("lazy").setup({
   spec = {
-    { import = "plugins" },
+    { import = "plugins.installed" },
+    { import = "plugins.spec" },
+    { import = "plugins.keymap_loader" },
   },
   defaults = {
     -- Load everyting lazy by default
