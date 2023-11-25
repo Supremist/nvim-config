@@ -1,5 +1,3 @@
-local tbl = require("core.tbl")
-local _cmp = {mapping = {}} -- for patching
 
 local M = {
   -- snippets
@@ -54,7 +52,7 @@ local M = {
     },
     config = function(_, opts)
       vim.api.nvim_set_hl(0, "CmpGhostText", { link = "Comment", default = true }) -- TODO move this
-      local cmp = tbl.deep_update(require("cmp"), _cmp)
+      local cmp = require("cmp")
       local defaults = require("cmp.config.default")()
       table.insert(defaults.sorting.comparators, 1, require("clangd_extensions.cmp_scores"))
       opts.sorting = defaults.sorting
@@ -65,7 +63,8 @@ local M = {
   },
 }
 
-function _cmp.mapping.complete_or_select(dir, opts)
+local cmp_patch = require("core.mod").patch("cmp", {mapping = {}})
+function cmp_patch.mapping.complete_or_select(dir, opts)
   return function()
     local cmp = require("cmp")
     if cmp.visible() then

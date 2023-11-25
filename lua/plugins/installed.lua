@@ -4,6 +4,8 @@
 -- Entries may also contain fields, required for loading.
 -- Such as: lazy, priority, enabled, cond, module, build, dependencies
 
+require("core.main").on_lazy_spec_load()
+
 return {
   -- snippets
   { "L3MON4D3/LuaSnip",

@@ -38,6 +38,7 @@ end
 function M.unload()
   local Config = require "lazy.core.config"
   local Handler = require "lazy.core.handler"
+  Mod.loader.unhook_all()
   Keymaps.del(require("config.keymaps").global)
 
   for _, plugin in pairs(Config.plugins) do
@@ -51,6 +52,10 @@ end
 function M.reload()
   M.unload()
   require("core.main").load()
+end
+
+function M.on_lazy_spec_load()
+  Mod.install_patcher()
 end
 
 return M

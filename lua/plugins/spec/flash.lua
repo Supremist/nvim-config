@@ -1,10 +1,10 @@
 local optional = require("core.mod").optional
 
 -- Flash enhances the built-in search functionality by showing labels
--- at the end of each match, letting you quickly jump to a specific
+-- at the end of each match, letting you quickly jump to a Mific
 -- location.
-local Flash = {} -- for patching
-local spec = { "flash.nvim",
+local Flash = require("core.mod").patch("flash")
+local M = { "flash.nvim",
   event = "VeryLazy",
   opts = {
     labels = "asdfghjklqwertyuiopzxcvbnm1234567890ASDFGHJKLQWERTYUIOPZXCVBNM",
@@ -41,10 +41,16 @@ local spec = { "flash.nvim",
         end,
       }
     },
+    config = function(conf)
+      if conf.mode == "search" then
+        conf.action = Flash.process_search_jump
+      end
+    end
   },
 }
 
 function Flash.jump(opts)
+  opts = opts or {}
   local state = require("flash.repeat").get_state("jump", opts)
   state:loop({abort = opts.abort})
   return state
@@ -93,27 +99,14 @@ function Flash.process_search_jump(match, state)
 end
 
 function Flash.telescope(prompt_bufnr)
-  vim.print("started")
-  local opts = spec.opts.modes.telescope
+  local opts = M.opts.modes.telescope
   opts.action = function(match)
     local picker = require("telescope.actions.state").get_current_picker(prompt_bufnr)
     picker:set_selection(match.pos[1] - 1)
     require("telescope.actions").select_default(prompt_bufnr)
   end
   opts.actions = require("config.keymaps").flash_in_telescope(prompt_bufnr)
-  vim.print(opts)
   Flash.jump(opts)
 end
 
-function spec.opts.config(conf)
-  if conf.mode == "search" then
-    conf.action = Flash.process_search_jump
-  end
-end
-
-function spec.config(_, opts)
-  local flash = require("core.tbl").deep_update(require("flash"), Flash)
-  flash.setup(opts)
-end
-
-return spec
+return M
