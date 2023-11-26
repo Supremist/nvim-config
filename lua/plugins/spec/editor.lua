@@ -1,6 +1,4 @@
-local Util = require("util")
 local optional = require("core.mod").optional
-
 
 return {
 
@@ -8,9 +6,6 @@ return {
   { "neo-tree.nvim",
     cmd = "Neotree",
 
-    deactivate_ = function()
-      vim.cmd([[Neotree close]])
-    end,
     init = function()
       if vim.fn.argc() == 1 then
         local stat = vim.loop.fs_stat(vim.fn.argv(0))
@@ -70,6 +65,7 @@ return {
   { "telescope.nvim",
     cmd = "Telescope",
 
+    reloadable = true,
     opts = {
       defaults = {
         prompt_prefix = " ",
@@ -83,6 +79,7 @@ return {
   -- with the active keybindings of the command you started typing.
   { "which-key.nvim",
     event = "VeryLazy",
+    reloadable = true,
     opts = {},
     config = function(_, opts)
       local wk = require("which-key")
@@ -117,6 +114,7 @@ return {
   -- instances.
   { "vim-illuminate",
     event = { "BufReadPost", "BufNewFile" },
+    reloadable = true,
     opts = {
       delay = 200,
       large_file_cutoff = 2000,
@@ -130,6 +128,7 @@ return {
   },
 
   { "neoscroll.nvim",
+    reloadable = true,
     opts = {
       respect_scrolloff = true,
       mappings = {},

@@ -50,20 +50,21 @@ return {
   
   { "NvChad/nvim-colorizer.lua",
     lazy = false,
-	opts = {
-	  filetypes = { "*" },
-	}
+    opts = {
+      filetypes = { "*" },
+    }
   },
   
   { "EdenEast/nightfox.nvim",
     lazy = false,
-	priority = 1000,
-	opts = function(plug, opts)
-	  return require("core.mod").reload("theme.nightfox_override").get_options("carbonfox")
-	end,
-	config = function(plug, opts)
-	  require("nightfox").setup(opts)
-	  vim.cmd([[colorscheme carbonfox]])
-	end,
+    priority = 1000,
+    reloadable = true,
+    opts = function(plug, opts)
+      return require("core.mod").reload("theme.nightfox_override").get_options("carbonfox")
+    end,
+    config = function(plug, opts)
+      require("nightfox").setup(opts)
+      vim.cmd([[colorscheme carbonfox]])
+    end,
   },
 }

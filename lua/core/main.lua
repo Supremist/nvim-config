@@ -10,8 +10,8 @@ local function is_reloadable(plugin)
 end
 
 function M.load()
-  Keymaps.set(KeymapsConf.global)
   require("config.options")
+  Keymaps.set(KeymapsConf.global)
   local lazy = package.loaded["lazy"]
   if not lazy then
     require("config.lazy")

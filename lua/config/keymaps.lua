@@ -60,6 +60,7 @@ Keymaps.set_shorthands({
 
 M.which_key_groups = {
   {"n", "g",    "...", "+goto" },
+  {"n", "r",    "...", "+reload" },
   {"n", "gz",   "...", "+surround" },
   {"n", "]",    "...", "+next" },
   {"n", "[",    "...", "+prev" },
@@ -99,6 +100,9 @@ M.global = {
 -- Consistant mappings
   {"i", "<C-H>", "<C-w>", "delete previous word"}, -- <C-BS> is <C-H> because of terminal app
   {"i", "<C-w>", "<ESC><C-w>", "window menu from insert mode"},
+
+--Leader
+  {"n", "<L>ra", W("core.main").reload(), "Reload all config"},
 }
 
 local tree = require("neo-tree.command")

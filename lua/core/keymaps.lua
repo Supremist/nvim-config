@@ -178,6 +178,7 @@ function M.to_which_key_spec(keymaps)
       spec[1] = spec.rhs
       spec[2] = spec.desc
     end
+    spec.rhs = nil
     res[keymap.lhs] = spec
   end
   local opts = {mode = {}}

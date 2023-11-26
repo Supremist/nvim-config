@@ -60,7 +60,7 @@ end
 
 function M.loader.unhook_all()
   local loaders = M.loader.get()
-  for i, loader in M.loader.original do
+  for i, loader in ipairs(M.loader.original) do
     loaders[i] = loader
   end
   M.loader.original = {}

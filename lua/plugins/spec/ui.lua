@@ -21,6 +21,7 @@ local rainbow_dim_highlights = {
 return {
   { "rainbow-delimiters.nvim",
     event = "VeryLazy",
+    reloadable = true,
     opts = {
       strategy = {
         [""] = "global",
@@ -48,6 +49,7 @@ return {
 
   { "indent-blankline.nvim",
     event = "VeryLazy",
+    reloadable = true,
     opts = {
       indent = { highlight = rainbow_dim_highlights},
       scope = { enabled = false},

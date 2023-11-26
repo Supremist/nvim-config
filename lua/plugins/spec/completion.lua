@@ -2,6 +2,7 @@
 local M = {
   -- snippets
   { "LuaSnip",
+    reloadable = true,
     opts = {
       history = true,
       delete_check_events = "TextChanged",
@@ -10,6 +11,7 @@ local M = {
 
   { "friendly-snippets",
     optional = true,
+    reloadable = true,
     config = function()
       require("luasnip.loaders.from_vscode").lazy_load()
     end,
@@ -18,6 +20,7 @@ local M = {
    -- auto completion
   { "nvim-cmp",
     event = "InsertEnter",
+    reloadable = true,
     opts = {
       completion = {
         completeopt = "menu,menuone,noinsert",

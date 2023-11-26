@@ -6,6 +6,7 @@ local optional = require("core.mod").optional
 local Flash = require("core.mod").patch("flash")
 local M = { "flash.nvim",
   event = "VeryLazy",
+  reloadable = true,
   opts = {
     labels = "asdfghjklqwertyuiopzxcvbnm1234567890ASDFGHJKLQWERTYUIOPZXCVBNM",
     label = {
