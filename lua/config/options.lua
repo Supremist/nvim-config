@@ -23,7 +23,6 @@ opt.updatetime = 2000
 
 opt.number = true
 editor.set_hybridnumber(true)
-editor.watch_win_size()
 
 opt.list = true
 opt.showbreak="↪"

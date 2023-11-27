@@ -16,14 +16,13 @@ local function get_options(keymap)
 end
 
 local M = {}
-local ft_augroup = vim.api.nvim_create_augroup("FileTypeKeymapsGlobal", {clear = true})
 
 function M.set_shorthands(shorts)
   M.shorthands = shorts
 end
 
 local function has_brackets(str)
-  return (str[1] == "<" and str[#str] == ">")
+  return str:sub(1,1) == "<" and str:sub(-1,-1) == ">"
 end
 
 function M.expand(str)
@@ -31,7 +30,7 @@ function M.expand(str)
     return str
   end
   for key, shorts in pairs(M.shorthands) do
-    local stripped = has_brackets(key) and key:sub(2, #key-2) or key
+    local stripped = has_brackets(key) and key:sub(2, #key-1) or key
     for _, short in ipairs(shorts) do
       if not has_brackets(short) then
         str = str:gsub("([<%-])"..short..">", "%1"..stripped..">")
@@ -263,14 +262,9 @@ function M.set(keymaps, buffer)
     if keymap.ft then
       -- This will create keymap only for new buffers
       -- Use layer if you want to create/remove keymaps dynamicaly for already existing buffers
-      vim.api.nvim_create_autocmd("FileType", {
-        group = ft_augroup,
-        pattern = keymap.ft,
-        desc = "Set keymap depending on buffer filetype",
-        callback = function(ev)
-          M._set_keymap(keymap, ev.buf)
-        end,
-      })
+      require("core.aucmd").filetype(keymap.ft, function(ev)
+        M._set_keymap(keymap, ev.buf)
+      end, "Set keymap depending on buffer filetype")
     else
       M._set_keymap(keymap, buffer)
     end

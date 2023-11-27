@@ -74,29 +74,27 @@ function Flash.process_search_jump(match, state)
   state.opts.jump.register = false
   state.opts.jump.history = false
   Jump.jump(match, state)
-  vim.api.nvim_create_autocmd("CmdlineLeave", {
-    once = true,
-    callback = vim.schedule_wrap(function()
-      -- jumped on tree node, open it
-      local node = tree.tree:get_node()
-      local was_loaded = node.loaded
-      if not node:is_expanded() then
-        tree.commands.open(tree)
+  require("core.aucmd").once("CmdlineLeave", "*", vim.schedule_wrap(function()
+    -- jumped on tree node, open it
+    local node = tree.tree:get_node()
+    local was_loaded = node.loaded
+    if not node:is_expanded() then
+      tree.commands.open(tree)
+    end
+    if node.type == "directory" then
+      if was_loaded then
+        vim.schedule(start_search)
+      else
+        require("neo-tree.events").subscribe({
+          event = "after_render",
+          once = true,
+          handler = start_search,
+          id = "trigger_search_continuous",
+        })
       end
-      if node.type == "directory" then
-        if was_loaded then
-          vim.schedule(start_search)
-        else
-          require("neo-tree.events").subscribe({
-            event = "after_render",
-            once = true,
-            handler = start_search,
-            id = "trigger_search_continuous",
-          })
-        end
-      end
-    end),
-  })
+    end
+  end)
+  )
 end
 
 function Flash.telescope(prompt_bufnr)

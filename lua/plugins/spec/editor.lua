@@ -43,10 +43,9 @@ return {
       opts_patch.global = nil
       tbl.deep_update(opts, opts_patch)
       require("neo-tree").setup(opts)
-      vim.api.nvim_create_autocmd("TermClose", {
-        pattern = "*lazygit",
-        callback = function() optional("neo-tree.sources.git_status").refresh() end,
-      })
+      require("core.aucmd").add_cmd("TermClose", "*lazygit", function()
+        optional("neo-tree.sources.git_status").refresh()
+      end)
     end,
   },
 
