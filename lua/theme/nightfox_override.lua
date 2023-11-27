@@ -33,8 +33,8 @@ local pal = {
   fg2     = fg:brighten(-24):to_css(), -- Darker fg (status line)
   fg3     = fg:brighten(-48):to_css(), -- Darker fg (line numbers, fold colums)
 
-  sel0    = "#2a2a2a", -- Popup bg, visual selection bg
-  sel1    = "#525253", -- Popup sel bg, search bg
+  sel0    = "#213050", -- Popup bg, visual selection bg
+  sel1    = "#626253", -- Popup sel bg, search bg
 }
 
 -- palette.sel0 = bg:blend(C(palette.white.base), 0.1):to_css()
