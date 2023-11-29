@@ -71,7 +71,19 @@ return {
         selection_caret = " ",
         mappings = require("config.keymaps").telescope_mappings,
       },
+      extensions = {
+        fzf = {
+          fuzzy = true,                    -- false will only do exact matching
+          override_generic_sorter = true,  -- override the generic sorter
+          override_file_sorter = true,     -- override the file sorter
+        }
+      }
     },
+    config = function(_, opts)
+      local ts = require "telescope"
+      ts.setup(opts)
+      ts.load_extension("fzf")
+    end
   },
 
   -- which-key helps you remember key bindings by showing a popup
