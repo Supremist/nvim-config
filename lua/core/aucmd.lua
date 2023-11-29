@@ -6,6 +6,7 @@ M._static_groups = {
   -- This group is static, but not cleared. It is created when config loads but NOT cleared on reload.
   Permanent = false,
   FileTypeGroup = true,
+  PluginLoad = true,
 }
 
 local Group = {}
@@ -52,6 +53,15 @@ end
 
 function M.filetype(pattern, callback, desc, opts)
   return M.gruop.FileTypeGroup.add_cmd("FileType", pattern, callback, desc, opts)
+end
+
+function M.on_plugin_load(name, callback, desc, opts)
+  local Config = require("lazy.core.config")
+  if Config.plugins[name] and Config.plugins[name]._.loaded then
+    callback(name)
+  else
+    return M.group.PluginLoad:add_cmd("User", "LazyLoad", callback, desc, opts)
+  end
 end
 
 for name, clear in pairs(M._static_groups) do

@@ -79,10 +79,13 @@ return {
         }
       }
     },
-    config = function(_, opts)
-      local ts = require "telescope"
-      ts.setup(opts)
-      ts.load_extension("fzf")
+  },
+
+  { "telescope-fzf-native.nvim",
+    config = function ()
+      require("core.aucmd").on_plugin_load("telescope.nvim", function()
+        require("telescope").load_extension("fzf")
+      end)
     end
   },
 
