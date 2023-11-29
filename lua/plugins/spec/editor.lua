@@ -99,9 +99,9 @@ return {
       local wk = require("which-key")
       local K = require("core.keymaps")
       opts.key_labels = K.key_labels()
-      local maps, map_opts = K.to_which_key_spec(require("config.keymaps").which_key_groups)
+      local maps = K.to_which_key_spec(require("config.keymaps").which_key_groups)
       wk.setup(opts)
-      wk.register(maps, map_opts)
+      wk.register(maps)
     end,
   },
 

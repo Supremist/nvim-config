@@ -178,13 +178,16 @@ function M.to_which_key_spec(keymaps)
       spec[2] = spec.desc
     end
     spec.rhs = nil
+    spec.desc = nil
+    -- workaround for https://github.com/folke/which-key.nvim/issues/482
+    spec["<F20>"] = "which_key_ignore"
     res[keymap.lhs] = spec
   end
-  local opts = {mode = {}}
+  res.mode = {}
   for mode, _ in pairs(modes) do
-    table.insert(opts.mode, mode)
+    table.insert(res.mode, mode)
   end
-  return res, opts
+  return res
 end
 
 function M.table_by_mode(keymaps)
