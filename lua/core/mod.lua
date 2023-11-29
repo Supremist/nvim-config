@@ -9,6 +9,9 @@ end
 
 function M.split_path(file)
   local path, mod = file:match("^(.*)/lua/(.*)$")
+  if not mod then
+    return
+  end
   mod = mod:gsub("/init%.lua$", ""):gsub("%.lua$", ""):gsub("/", ".")
   return path, mod
 end
@@ -111,7 +114,10 @@ end
 
 function M.reload_file(file)
   local path, mod = M.split_path(file)
-  return M.reload(mod)
+  if mod then
+    return M.reload(mod)
+  end
+  return dofile(file)
 end
 
 return M

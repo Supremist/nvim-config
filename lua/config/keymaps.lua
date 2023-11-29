@@ -103,6 +103,7 @@ M.global = {
 
 --Leader
   {"n", "<L>ra", W("core.main").reload(), "Reload all config"},
+  {"n", "<L>rf", function() require("core.mod").reload_file(vim.api.nvim_buf_get_name(0)) end, "Reload file"},
 }
 
 local tree = require("neo-tree.command")
