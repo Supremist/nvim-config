@@ -1,4 +1,3 @@
-local Keymaps = require "core.keymaps"
 local Mod = require "core.mod"
 local KeymapsConf = require "config.keymaps"
 local M = {}
@@ -11,7 +10,7 @@ end
 
 function M.load()
   require("config.options")
-  Keymaps.set(KeymapsConf.global)
+  KeymapsConf.global:set()
   local lazy = package.loaded["lazy"]
   if not lazy then
     require("config.lazy")
@@ -27,7 +26,8 @@ function M.load()
     if is_reloadable(plugin) then
       table.insert(reloadable, plugin)
     elseif plugin._.loaded then
-      Keymaps.set(KeymapsConf.plugins[plugin.name])
+      local mapping = KeymapsConf.plugins[plugin.name]
+      if mapping then mapping:set() end
     else
       Handler.enable(plugin)
     end
@@ -39,12 +39,13 @@ function M.unload()
   local Config = require "lazy.core.config"
   local Handler = require "lazy.core.handler"
   Mod.loader.unhook_all()
-  Keymaps.del(require("config.keymaps").global)
+  require("config.keymaps").global:del()
 
   for _, plugin in pairs(Config.plugins) do
     Handler.disable(plugin)
     plugin._.cache = nil
-    Keymaps.del(KeymapsConf.plugins[plugin.name])
+    local mapping = KeymapsConf.plugins[plugin.name]
+    if mapping then mapping:del() end
   end
   require("lazy.core.util").walkmods(M.config_dir.."/lua/", Mod.unload)
 end

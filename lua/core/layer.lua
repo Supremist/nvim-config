@@ -101,7 +101,7 @@ function Layer:set_active(is_active)
     if self.buffer then
       self:_setup_keymaps(self.buffer)
     else
-      self.augroup = vim.api.nvim_create_augruop(self.name.."LayerUpdate", {clear = true})
+      self.augroup = vim.api.nvim_create_augroup(self.name.."LayerUpdate", {clear = true})
       vim.api.nvim_create_autocmd("BufEnter", {
         group = self.augroup,
         desc = "Update layer keymaps",

@@ -69,7 +69,7 @@ return {
       defaults = {
         prompt_prefix = " ",
         selection_caret = " ",
-        mappings = require("config.keymaps").telescope_mappings,
+        mappings = require("config.keymaps").telescope_mappings:reshape({"mode", "lhs"}, {1, "rhs"}),
       },
       extensions = {
         fzf = {
@@ -99,7 +99,7 @@ return {
       local wk = require("which-key")
       local K = require("core.keymaps")
       opts.key_labels = K.key_labels()
-      local maps = K.to_which_key_spec(require("config.keymaps").which_key_groups)
+      local maps = require("config.keymaps").which_key_groups:to_whichkey()
       wk.setup(opts)
       wk.register(maps)
     end,
@@ -149,12 +149,7 @@ return {
     },
     config = function(_, opts)
       require("neoscroll").setup(opts)
-      local mapping = {}
-      local parse = require("core.keymaps").parse
-      for _, map in pairs(parse(require("config.keymaps").plugins["neoscroll.nvim"])) do
-        mapping[map.lhs] = map.rhs
-      end
-      require("neoscroll.config").set_mappings(mapping)
+      require("neoscroll.config").set_mappings(require("config.keymaps").plugins["neoscroll.nvim"]:reshape({"rhs"}, {1, "rhs"}))
     end,
   },
 

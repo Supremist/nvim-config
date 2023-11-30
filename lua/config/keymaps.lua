@@ -58,7 +58,7 @@ Keymaps.set_shorthands({
   ["<Tab>"] = {"⭾"},
 })
 
-M.which_key_groups = {
+M.which_key_groups = Keymaps.parse {
   {"n", "g",    "...", "+goto" },
   {"n", "r",    "...", "+reload" },
   {"n", "gz",   "...", "+surround" },
@@ -77,7 +77,7 @@ M.which_key_groups = {
   {"n", "<L>x", "...", "+diagnostics/quickfix" },
 }
 
-M.global = {
+M.global = Keymaps.parse {
 -- Better up/down
 -- mode   lhs  rhs                                description
   {"nx", "k", expr("v:count == 0 ? 'gk' : 'k'"), "move up one *wrapped* line"},
@@ -107,7 +107,7 @@ M.global = {
 }
 
 local tree = require("neo-tree.command")
-M.plugins["neo-tree.nvim"] = {
+M.plugins["neo-tree.nvim"] = Keymaps.parse {
   {"n", "<L>fe", function() tree.execute({toggle = true, dir = Util.get_root()}) end, "Explorer NeoTree (root dir)"},
   {"n", "<L>fE", function() tree.execute({toggle = true, dir = vim.loop.cwd()}) end, "Explorer NeoTree (cwd)"},
   {"n", "<L>e", "<L>fe", "Explorer NeoTree (root dir)", remap = true },
@@ -122,7 +122,7 @@ M.neo_tree = {
   },
 }
 
-M.plugins["flash.nvim"] = {
+M.plugins["flash.nvim"] = Keymaps.parse {
   {"nx",  "#", W("flash").jump({search = { mode = "fuzzy", incremental = true}}), "Fuzzy Flash" },
   {"nxo", "s", W("flash").jump(), "Flash" },
   {"nxo", "S", W("flash").treesitter(), "Flash Treesitter" },
@@ -131,7 +131,7 @@ M.plugins["flash.nvim"] = {
   {"c","<C-s>", W("flash").toggle(), "Toggle Flash Search" },
 }
 
-M.plugins["telescope.nvim"] = {
+M.plugins["telescope.nvim"] = Keymaps.parse {
   { "n", "<L>,", "<cmd>Telescope buffers show_all_buffers=true<cr>", "Switch Buffer" },
   { "n", "<L>/", Util.telescope("live_grep"), "Grep (root dir)" },
   { "n", "<L>:", "<cmd>Telescope command_history<cr>", "Command History" },
@@ -203,7 +203,7 @@ M.plugins["telescope.nvim"] = {
   },
 }
 
-M.telescope_mappings = Keymaps.table_by_mode {
+M.telescope_mappings = Keymaps.parse {
   {"i", "<C-t>", F("trouble.providers.telescope").open_with_trouble()},
   {"i", "<A-t>", F("trouble.providers.telescope").open_selected_with_trouble()},
   {"i", "<A-i>", function()
@@ -227,51 +227,51 @@ M.telescope_mappings = Keymaps.table_by_mode {
 
 function M.flash_in_telescope(buf)
   local act = W("telescope.actions")
-  return Keymaps.table_by_lhs({
+  return Keymaps.parse({
     {"n", "j", act.move_selection_next(buf)},
     {"n", "k", act.move_selection_previous(buf)},
     {"n", "↓", act.move_selection_next(buf)},
     {"n", "↑", act.move_selection_previous(buf)},
     {"n", "↲", act.select_default(buf)},
-  }, {termcodes = true, nomode = true})
+  }):reshape({"id"}, {1, "rhs"})
 end
 
-M.plugins["LuaSnip"] = {
+M.plugins["LuaSnip"] = Keymaps.parse {
   {"i",  "<C-e>", layered(W("luasnip").expand()) },
   {"is", "<C-k>", layered(W("luasnip").jump(1)) },
   {"is", "<C-j>", layered(W("luasnip").jump(-1)) },
   {"is", "<C-y>", layered(W("luasnip").change_choice(1)) },
 }
 
-M.plugins["neoscroll.nvim"] = {
+M.plugins["neoscroll.nvim"] = Keymaps.parse {
   {"nv", "<C-u>", manual({'scroll', {'-vim.wo.scroll', 'true', '30'}}), "Smooth scrolling up"},
   {"nv", "<C-d>", manual({'scroll', {' vim.wo.scroll', 'true', '30'}}), "Smooth scrolling down"}
 }
 
-M.plugins["vim-illuminate"] = Keymaps.add_options({
+M.plugins["vim-illuminate"] = Keymaps.parse {
   {"n", "[[", W("illuminate").goto_next_reference(true), "Next Reference"},
   {"n", "]]", W("illuminate").goto_prev_reference(true), "Prev Reference"},
-}, {})
+}
 
-M.plugins["mini.bufremove"] = {
+M.plugins["mini.bufremove"] = Keymaps.parse {
   {"n", "<L>bd", W("mini.bufremove").delete(0, false), "Delete Buffer" },
   {"n", "<L>bD", W("mini.bufremove").delete(0, true), "Delete Buffer (Force)" },
 }
 
 function M.cmp_mappings(cmp)
-  return Keymaps.table_by_lhs({
+  return Keymaps.parse({
     {"i", "<C-n>", cmp.mapping.complete_or_select("next", { behavior = cmp.SelectBehavior.Select })},
     {"i", "<C-p>", cmp.mapping.complete_or_select("prev", { behavior = cmp.SelectBehavior.Select })},
     {"i", "<C-b>", cmp.mapping.scroll_docs(-4)},
     {"i", "<C-f>", cmp.mapping.scroll_docs(4)},
     {"i", "<Tab>", cmp.mapping.confirm({ select = true }), "Accept selected item | select first"},
     {"i", "<S-Tab>", cmp.mapping.confirm({ behavior = cmp.ConfirmBehavior.Replace, select = true, })},
-  })
+  }):reshape({"lhs", "mode"}, {1, "rhs"})
 end
 
 function M.attach_gitsigns(buf)
   local gs = W("gitsigns")
-  Keymaps.set({
+  Keymaps.parse({
     {"n", "]h", gs.next_hunk(), "Next Hunk"},
     {"n", "[h", gs.prev_hunk(), "Prev Hunk"},
     {"nv", "<L>ghs", ":Gitsigns stage_hunk<CR>", "Stage Hunk"},
@@ -284,7 +284,7 @@ function M.attach_gitsigns(buf)
     {"n", "<L>ghd", gs.diffthis(), "Diff This"},
     {"n", "<L>ghD", gs.diffthis("~"), "Diff This ~"},
     {"ox", "ih", ":<C-U>Gitsigns select_hunk<CR>", "GitSigns Select Hunk"},
-  }, buf)
+  }):set(buf)
 end
 
 return M
