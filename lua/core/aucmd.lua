@@ -6,6 +6,7 @@ M._static_groups = {
   -- This group is static, but not cleared. It is created when config loads but NOT cleared on reload.
   Permanent = false,
   FileTypeGroup = true,
+  LspAttachGroup = true,
   PluginLoad = true,
 }
 
@@ -52,7 +53,11 @@ function M.once(events, pattern_or_buf, callback, desc, opts)
 end
 
 function M.filetype(pattern, callback, desc, opts)
-  return M.gruop.FileTypeGroup.add_cmd("FileType", pattern, callback, desc, opts)
+  return M.group.FileTypeGroup:add_cmd("FileType", pattern, callback, desc, opts)
+end
+
+function M.lsp_attach(pattern, callback, desc, opts)
+  return M.group.LspAttachGroup:add_cmd("LspAttach", pattern, callback, desc, opts)
 end
 
 function M.on_plugin_load(name, callback, desc, opts)

@@ -153,6 +153,23 @@ function lsp.opts.setup.ruff_lsp()
   -- end)
 end
 
+function lsp.on_attach(client, buffer)
+  local conf = require("config.keymaps").lsp
+  local maps = conf.any:copy()
+  if conf[client.name] then
+    maps:extend(conf[client.name]):resolve()
+  end
+  maps:filter(function(map)
+    local method = map.has
+    if not method then
+      return true
+    end
+    method = method:find("/") and method or "textDocument/" .. method
+    return client.supports_method(method, {bufnr = buffer})
+  end)
+  maps:set(buffer)
+end
+
 function lsp.config(_, opts)
   -- setup autoformat
   -- require("lazyvim.plugins.lsp.format").setup(opts)
@@ -194,6 +211,7 @@ function lsp.config(_, opts)
   for server, _ in pairs(servers) do
     setup(server)
   end
+  require("util.lsp").on_attach(lsp.on_attach)
 end
 
 

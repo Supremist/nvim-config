@@ -39,6 +39,18 @@ function M.filter(list, fn, dest)
   return dest
 end
 
+function M.flatten(tbl, depth, dest)
+  dest = dest or {}
+  if depth == 0 then
+    table.insert(dest, tbl)
+    return dest
+  end
+  for _, value in pairs(tbl) do
+    M.flatten(value, depth-1, dest)
+  end
+  return dest
+end
+
 function M.reshape(value, key_scheme, value_scheme)
   if #key_scheme == 0 then
     if not value_scheme or #value_scheme == 0 then

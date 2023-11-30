@@ -16,6 +16,23 @@ function Keymaps:del()
   M.del(self.list)
 end
 
+function Keymaps:copy()
+  local res = setmetatable(Tbl.shallowcopy(self), KeymapsMT)
+  res.list = Tbl.shallowcopy(self.list)
+  return res
+end
+
+-- remove mappings with the same id & mode
+function Keymaps:resolve()
+  self.list = Tbl.flatten(self:reshape({"mode", "id"}, {1}), 2)
+  return self
+end
+
+function Keymaps:extend(other)
+  vim.list_extend(self.list, other.list)
+  return self
+end
+
 function Keymaps:filter(filter_fn)
   Tbl.filter(self.list, filter_fn, self.list)
   return self

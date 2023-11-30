@@ -44,6 +44,7 @@ local F = Keymaps.forward_mod
 local M = {}
 M.plugins = {}
 M.mappings = {}
+M.lsp = {}
 
 Keymaps.set_shorthands({
   ["<Leader>"] = {"<L>", "<l>"},
@@ -286,5 +287,10 @@ function M.attach_gitsigns(buf)
     {"ox", "ih", ":<C-U>Gitsigns select_hunk<CR>", "GitSigns Select Hunk"},
   }):set(buf)
 end
+
+-- lsp mappings for any server
+M.lsp.any = Keymaps.parse {
+  {"n", "gd", W("telescope.builtin").lsp_definitions({reuse_win = true}), "Goto Definition", has = "definition___"},
+}
 
 return M
