@@ -289,8 +289,20 @@ function M.attach_gitsigns(buf)
 end
 
 -- lsp mappings for any server
-M.lsp.any = Keymaps.parse {
-  {"n", "gd", W("telescope.builtin").lsp_definitions({reuse_win = true}), "Goto Definition", has = "definition___"},
+M.lsp.any = Keymaps.parse ({
+  {"n", "K",  vim.lsp.buf.hover, "Hover"},
+  {"n", "gK", vim.lsp.buf.signature_help, "Signature Help", has = "signatureHelp"},
+  {"n", "gD", vim.lsp.buf.declaration, "Goto Declaration", has = "declaration"},
+  {"n", "gd", W("telescope.builtin").lsp_definitions({reuse_win = true}), "Goto Definition", has = "definition"},
+  {"n", "gr", W("telescope.builtin").lsp_references(), "References"},
+  {"n", "gI", W("telescope.builtin").lsp_implementations({reuse_win = true}), "Goto Implementation"},
+  {"n", "gy", W("telescope.builtin").lsp_type_definitions({reuse_win = true}), "Goto T[y]pe Definition"},
+  {"nv", "<L>ca", vim.lsp.buf.code_action, "Code Action", has = "codeAction"},
+  {"n",  "<L>cr", vim.lsp.buf.rename, "Rename"},
+}, {name = "LSP"})
+
+M.lsp.clangd = Keymaps.parse {
+  {"n", "<L>cR", cmd("ClangdSwitchSourceHeader"), "Switch Source/Header (C/C++)"},
 }
 
 return M
