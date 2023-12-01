@@ -262,8 +262,8 @@ M.plugins["mini.bufremove"] = Keymaps.parse {
 M.plugins["Comment.nvim"] = Keymaps.parse ({
   {"n", "gcc", manual("toggler.line"),   "Toggle current Line" },
   {"n", "gbc", manual("toggler.block"),  "Toggle current Block" },
-  {"n", "gc",  manual("opleader.line"),  "Toggle Linewise Operator" },
-  {"n", "gb",  manual("opleader.block"), "Toggle Blockwise Operator" },
+  {"nv","gc",  manual("opleader.line"),  "Toggle Linewise Operator" },
+  {"nv","gb",  manual("opleader.block"), "Toggle Blockwise Operator" },
   {"n", "gcO", manual("extra.above"),    "Add on the line above" },
   {"n", "gco", manual("extra.below"),    "Add on the line below" },
   {"n", "gcA", manual("extra.eol"),      "Add at the end of line" },

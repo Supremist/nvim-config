@@ -149,7 +149,8 @@ return {
     },
     config = function(_, opts)
       require("neoscroll").setup(opts)
-      require("neoscroll.config").set_mappings(require("config.keymaps").plugins["neoscroll.nvim"]:reshape({"rhs"}, {1, "rhs"}))
+      local mappings = require("config.keymaps").plugins["neoscroll.nvim"]:reshape({"lhs"}, {1, "rhs"})
+      require("neoscroll.config").set_mappings(mappings)
     end,
   },
 
