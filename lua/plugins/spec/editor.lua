@@ -153,4 +153,16 @@ return {
     end,
   },
 
+  { "Comment.nvim",
+    reloadable = true,
+    opts = {},
+    config = function(_, opts)
+      for _, keymap in ipairs(require("config.keymaps").plugins["Comment.nvim"].list) do
+        local path = vim.split(keymap.rhs, ".", {plain = true})
+        require("core.tbl").set(opts, path, keymap.lhs)
+      end
+      require("Comment").setup(opts)
+    end,
+  },
+
 }

@@ -259,6 +259,16 @@ M.plugins["mini.bufremove"] = Keymaps.parse {
   {"n", "<L>bD", W("mini.bufremove").delete(0, true), "Delete Buffer (Force)" },
 }
 
+M.plugins["Comment.nvim"] = Keymaps.parse ({
+  {"n", "gcc", manual("toggler.line"),   "Toggle current Line" },
+  {"n", "gbc", manual("toggler.block"),  "Toggle current Block" },
+  {"n", "gc",  manual("opleader.line"),  "Toggle Linewise Operator" },
+  {"n", "gb",  manual("opleader.block"), "Toggle Blockwise Operator" },
+  {"n", "gcO", manual("extra.above"),    "Add on the line above" },
+  {"n", "gco", manual("extra.below"),    "Add on the line below" },
+  {"n", "gcA", manual("extra.eol"),      "Add at the end of line" },
+}, {name = "Comment"})
+
 function M.cmp_mappings(cmp)
   return Keymaps.parse({
     {"i", "<C-n>", cmp.mapping.complete_or_select("next", { behavior = cmp.SelectBehavior.Select })},

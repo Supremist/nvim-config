@@ -51,6 +51,25 @@ function M.flatten(tbl, depth, dest)
   return dest
 end
 
+function M.set(tbl, path, value)
+  for i = 1, #path-1, 1 do
+    local key = path[i]
+    tbl[key] = tbl[key] or {}
+    tbl = tbl[key]
+  end
+  tbl[path[#path]] = value
+end
+
+function M.get(tbl, path)
+  for _, key in ipairs(path) do
+    tbl = tbl[key]
+    if tbl == nil then
+      return tbl
+    end
+  end
+  return tbl
+end
+
 function M.reshape(value, key_scheme, value_scheme)
   if #key_scheme == 0 then
     if not value_scheme or #value_scheme == 0 then

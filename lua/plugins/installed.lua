@@ -24,6 +24,9 @@ return {
     },
   },
 
+  -- code commenting
+  { "numToStr/Comment.nvim" },
+
   -- lspconfig
   { "neovim/nvim-lspconfig",
     dependencies = {
