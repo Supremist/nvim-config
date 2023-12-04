@@ -78,6 +78,7 @@ return {
 
   -- buffer remove
   { "echasnovski/mini.bufremove" },
+  { "echasnovski/mini.ai" },
 
   { "karb94/neoscroll.nvim" },
 
@@ -85,18 +86,11 @@ return {
   -- use in Neovim to power faster and more accurate
   -- syntax highlighting.
   { "nvim-treesitter/nvim-treesitter", build = ":TSUpdate",
-    -- dependencies = {
-      -- {
-        -- "nvim-treesitter/nvim-treesitter-textobjects",
-        -- init = function()
-          -- -- disable rtp plugin, as we only need its queries for mini.ai
-          -- -- In case other textobject modules are enabled, we will load them
-          -- -- once nvim-treesitter is loaded
-          -- require("lazy.core.loader").disable_rtp_plugin("nvim-treesitter-textobjects")
-        -- end,
-      -- },
-    -- },
+    dependencies = {
+      { "nvim-treesitter/nvim-treesitter-textobjects" },
+    },
   },
+
   { "lukas-reineke/indent-blankline.nvim", main = "ibl" },
   { "HiPhish/rainbow-delimiters.nvim" },
 }

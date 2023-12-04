@@ -269,6 +269,46 @@ M.plugins["Comment.nvim"] = Keymaps.parse ({
   {"n", "gcA", manual("extra.eol"),      "Add at the end of line" },
 }, {name = "Comment"})
 
+M.plugins["mini.ai"] = Keymaps.parse({
+  {"xo", "a",  {"mappings", "around"},      "Around textobject"},
+  {"xo", "i",  {"mappings", "inside"},      "Inside textobject"},
+  {"xo", "an", {"mappings", "around_next"}, "Around next textobject"},
+  {"xo", "in", {"mappings", "inside_next"}, "Inside next textobject"},
+  {"xo", "al", {"mappings", "around_last"}, "Around last textobject"},
+  {"xo", "il", {"mappings", "inside_last"}, "Inside last textobject"},
+  {"nxo","g[", {"mappings", "goto_left"},   "Move to left \"around\""},
+  {"nxo","g]", {"mappings", "goto_right"},  "Move to right \"around\""},
+  -- default opts: use_nvim_treesitter = true; change to false for "nvim-treesitter-textobjects"
+  {"xo", "ao", {"treesitter", {"@block.outer", "@conditional.outer", "@loop.outer"}}, "Block, conditional, loop"},
+  {"xo", "io", {"treesitter", {"@block.inner", "@conditional.inner", "@loop.inner"}}, "Block, conditional, loop"},
+  {"xo", "af", {"treesitter", "@function.outer"}, "Function"},
+  {"xo", "if", {"treesitter", "@function.inner"}, "Function"},
+  {"xo", "ac", {"treesitter", "@class.outer"}, "Class"},
+  {"xo", "ic", {"treesitter", "@class.inner"}, "Class"},
+  --{"xo", {"at", "it"}, {"table", "<([%p%w]-)%f[^<%w][^<>]->.-</%1>", "^<.->().*()</[^/]->$"}, "Tag"},
+}, {manual = true})
+
+function M.get_builtin_textobjects(dir)
+  local balanced = {"\"", "'", "`", "(", "<", "[", "{"}
+  local balanced_with_spaces = {")", ">", "]", "}"}
+  local res = {
+    [" "] = "Whitespace",
+    ["?"] = "User Prompt",
+    ["_"] = "Underscore",
+    ["a"] = "Argument",
+    ["t"] = "Tag",
+    ["b"] = "Balanced ), ], }",
+    ["q"] = "Quote `, \", '",
+  }
+  for _, obj in ipairs(balanced) do
+    res[obj] = "Balanced "..obj
+  end
+  for _, obj in ipairs(balanced_with_spaces) do
+    res[obj] = "Balanced "..obj..(dir == "inside" and " including white-space" or "")
+  end
+  return res
+end
+
 function M.cmp_mappings(cmp)
   return Keymaps.parse({
     {"i", "<C-n>", cmp.mapping.complete_or_select("next", { behavior = cmp.SelectBehavior.Select })},
