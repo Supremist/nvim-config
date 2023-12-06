@@ -24,7 +24,6 @@ local M = {
     opts = {
       completion = {
         completeopt = "menu,menuone,noinsert",
-        keyword_length = 3,
       },
       snippet = {
         expand = function(args)
@@ -68,6 +67,7 @@ local M = {
   { "Comment.nvim",
     reloadable = true,
     opts = {},
+    -- TODO add "JoosepAlviste/nvim-ts-context-commentstring"
     config = function(_, opts)
       for _, keymap in ipairs(require("config.keymaps").plugins["Comment.nvim"].list) do
         local path = vim.split(keymap.rhs, ".", {plain = true})
@@ -133,6 +133,18 @@ local M = {
         require("which-key").register(whk_maps)
       end)
     end,
+  },
+
+  { "nvim-autopairs",
+    event = "InsertEnter",
+    opts = {
+      check_ts = true, -- treesitter integration
+      disable_filetype = { "TelescopePrompt" },
+      ts_config = {
+        lua = { "string", "source" },
+        javascript = { "string", "template_string" },
+      },
+    }
   },
 }
 
