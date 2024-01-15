@@ -94,4 +94,10 @@ return {
   { "lukas-reineke/indent-blankline.nvim", main = "ibl" },
   { "HiPhish/rainbow-delimiters.nvim" },
   { "windwp/nvim-autopairs" },
+
+  {
+    "iamcco/markdown-preview.nvim",
+    -- build = "cd app && yarn install",
+    build = function() vim.fn["mkdp#util#install"]() end,
+  },
 }
