@@ -91,6 +91,8 @@ return {
     },
   },
 
+  -- indent
+  { "NMAC427/guess-indent.nvim" },
   { "lukas-reineke/indent-blankline.nvim", main = "ibl" },
   { "HiPhish/rainbow-delimiters.nvim" },
   { "windwp/nvim-autopairs" },
