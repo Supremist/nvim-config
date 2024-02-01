@@ -35,7 +35,6 @@ local require = require("lazy.core.util").lazy_require
 local Util = require("util")
 
 local expr = Keymaps.options_builder({expr=true})
-local manual = Keymaps.options_builder({manual=true})
 local cmd = Keymaps.cmd
 local layered = Keymaps.layered
 local W = Keymaps.wrap_mod
@@ -244,10 +243,10 @@ M.plugins["LuaSnip"] = Keymaps.parse {
   {"is", "<C-y>", layered(W("luasnip").change_choice(1)) },
 }
 
-M.plugins["neoscroll.nvim"] = Keymaps.parse {
-  {"nv", "<C-u>", manual({'scroll', {'-vim.wo.scroll', 'true', '30'}}), "Smooth scrolling up"},
-  {"nv", "<C-d>", manual({'scroll', {' vim.wo.scroll', 'true', '30'}}), "Smooth scrolling down"}
-}
+M.plugins["neoscroll.nvim"] = Keymaps.parse ({
+  {"nv", "<C-u>", {'scroll', {'-vim.wo.scroll', 'true', '30'}}, "Smooth up"},
+  {"nv", "<C-d>", {'scroll', {' vim.wo.scroll', 'true', '30'}}, "Smooth down"}
+}, {name = "Scroll", manual = true})
 
 M.plugins["vim-illuminate"] = Keymaps.parse {
   {"n", "[[", W("illuminate").goto_next_reference(true), "Next Reference"},
@@ -260,14 +259,14 @@ M.plugins["mini.bufremove"] = Keymaps.parse {
 }
 
 M.plugins["Comment.nvim"] = Keymaps.parse ({
-  {"n", "gcc", manual("toggler.line"),   "Toggle current Line" },
-  {"n", "gbc", manual("toggler.block"),  "Toggle current Block" },
-  {"nv","gc",  manual("opleader.line"),  "Toggle Linewise Operator" },
-  {"nv","gb",  manual("opleader.block"), "Toggle Blockwise Operator" },
-  {"n", "gcO", manual("extra.above"),    "Add on the line above" },
-  {"n", "gco", manual("extra.below"),    "Add on the line below" },
-  {"n", "gcA", manual("extra.eol"),      "Add at the end of line" },
-}, {name = "Comment"})
+  {"n", "gcc", "toggler.line",   "Toggle current Line" },
+  {"n", "gbc", "toggler.block",  "Toggle current Block" },
+  {"nv","gc",  "opleader.line",  "Toggle Linewise Operator" },
+  {"nv","gb",  "opleader.block", "Toggle Blockwise Operator" },
+  {"n", "gcO", "extra.above",    "Add on the line above" },
+  {"n", "gco", "extra.below",    "Add on the line below" },
+  {"n", "gcA", "extra.eol",      "Add at the end of line" },
+}, {name = "Comment", manual = true})
 
 M.plugins["mini.ai"] = Keymaps.parse({
   {"xo", "a",  {"mappings", "around"},      "Around textobject"},
