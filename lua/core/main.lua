@@ -10,6 +10,7 @@ end
 
 function M.load()
   require("config.options")
+  require("config.wm")
   KeymapsConf.global:set()
   local lazy = package.loaded["lazy"]
   if not lazy then
