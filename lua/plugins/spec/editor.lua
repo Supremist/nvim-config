@@ -89,6 +89,21 @@ return {
     end
   },
 
+  { "telescope-ui-select.nvim",
+    init = function ()
+      -- Hook for loading. ui-select plugin will install new function
+      vim.ui.select = function(...)
+        require("telescope").load_extension("ui-select")
+        return vim.ui.select(...)
+      end
+    end,
+    config = function ()
+      require("core.aucmd").on_plugin_load("telescope.nvim", function()
+        require("telescope").load_extension("ui-select")
+      end)
+    end
+  },
+
   -- which-key helps you remember key bindings by showing a popup
   -- with the active keybindings of the command you started typing.
   { "which-key.nvim",
