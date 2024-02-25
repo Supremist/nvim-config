@@ -69,6 +69,14 @@ function M.on_plugin_load(name, callback, desc, opts)
   end
 end
 
+function M.on_vim_enter(callback, desc)
+  if vim.v.vim_did_enter then
+    callback()
+  else
+    M.group.Default:add_cmd("VimEnter", "*", callback, desc, {nested=true})
+  end
+end
+
 for name, clear in pairs(M._static_groups) do
   M.add_group(name, {clear = clear})
 end

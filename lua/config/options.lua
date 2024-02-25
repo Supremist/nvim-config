@@ -28,3 +28,4 @@ opt.list = true
 opt.showbreak="↪"
 opt.listchars="tab: ⎯→,nbsp:␣,lead:•,multispace:•,trail:•,extends:⟩,precedes:⟨"
 
+opt.sessionoptions="buffers,curdir,folds,help,tabpages,winpos,winsize,resize,terminal"

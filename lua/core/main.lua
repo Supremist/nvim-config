@@ -8,10 +8,7 @@ local function is_reloadable(plugin)
   return plugin.deactivate or plugin.reloadable
 end
 
-function M.load()
-  require("config.options")
-  require("config.wm")
-  KeymapsConf.global:set()
+function M.load_plugins()
   local lazy = package.loaded["lazy"]
   if not lazy then
     require("config.lazy")
@@ -34,6 +31,14 @@ function M.load()
     end
   end
   lazy.reload({plugins = reloadable})
+end
+
+function M.load()
+  require("config.options")
+  require("config.wm")
+  KeymapsConf.global:set()
+  M.load_plugins()
+  require("core.session").init()
 end
 
 function M.unload()
