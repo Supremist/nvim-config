@@ -51,9 +51,9 @@ function M.loader.hook(priority, hook)
   loaders[priority] = function(modname)
     local ret = prev(modname)
     if type(ret) == "function" then
-      return function()
-        local mod = ret()
-        local hook_ret = hook(modname, mod)
+      return function(name)
+        local mod = ret(name)
+        local hook_ret = hook(name, mod)
         return hook_ret == nil and mod or hook_ret
       end
     end
