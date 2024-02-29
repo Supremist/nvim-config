@@ -13,42 +13,156 @@ function M.get_name(session_filepath)
 end
 
 function M.init()
-  aucmd.on_vim_enter(function()
-    local recent = M.list_all_recent()
-    if #recent > 0 then
-      M.load(recent[1])
-    end
-  end, "Autoload session")
+  if not vim.g.Reloading then
+    M.au:add_cmd("StdinReadPre", "*", function()
+      vim.g.started_with_stdin = true
+    end, "Check if started with stdin", {once = true})
 
-  M.au:add_cmd("VimLeavePre", "*", function()
-    if M.name then
-      M.save()
-    end
-  end, "Autosave session")
+    aucmd.on_vim_enter(function()
+      -- Do not autoload session if has any args
+      if vim.fn.argc() > 0 or vim.g.started_with_stdin then
+        return
+      end
+      -- TODO Do not autoload if vim crashed last time
+      local recent = M.list_all_recent()
+      if #recent > 0 then
+        M.load(recent[1])
+      end
+    end, "Autoload session")
+  end
 
-  M.au:add_cmd("StdinReadPre", "*", function()
-    vim.g.started_with_stdin = true
-  end, "Check if started with stdin", {once = true})
+  M.au:add_cmd("VimLeavePre", "*", M.autosave, "Autosave session")
+
+  vim.api.nvim_create_user_command("Ses",
+    function(opts)
+      local args = opts.fargs
+      local cmd_name = args[1] or "load"
+      local cmd = M[cmd_name]
+      table.remove(args, 1)
+      table.insert(args, opts.bang)
+      if cmd then
+        local ret = cmd(unpack(args))
+        if ret ~= nil then
+          vim.print(cmd_name, ": ", ret)
+        end
+      else
+        vim.notify("Session command "..cmd.." not found", vim.log.levels.ERROR)
+      end
+    end, {
+      nargs = "*",
+      complete = function(ArgLead, CmdLine, CursorPos)
+        local cmds = {"new", "load", "save", "clear", "detach", "merge"}
+        local args = vim.split(CmdLine, "%s+")
+        local n = #args - 2
+        if n == 0 then
+          return vim.tbl_filter(function(val)
+            return vim.startswith(val, args[2])
+          end, cmds)
+        end
+
+        if args[2] == "clear" or args[2] == "detach" then
+          return
+        end
+
+        if n == 1 then
+          return vim.tbl_filter(function(val)
+            return vim.startswith(val, args[3])
+          end, M.list_all_recent())
+        end
+
+        return {}
+      end}
+  )
 end
 
-function M.load(name, opts)
-  local loader = function()
-    local swapfile = vim.o.swapfile
-    vim.o.swapfile = false
-    vim.api.nvim_exec_autocmds('User', { pattern = 'SessionLoadPre' })
-    vim.api.nvim_command('silent source ' .. tostring(M.dir:joinpath(name)))
-    --vim.api.nvim_exec_autocmds('User', { pattern = 'SessionLoadPost' }) -- done by vimscript in session file
-    M.name = M.get_name(vim.v.this_session)
-    vim.o.swapfile = swapfile
+function M.choose(on_select, force)
+  if not M.save_if_changed(force) then
+    return
   end
-  if opts and opts.merge then
-    loader()
+  force = true
+
+  local sessions = M.list_all_recent()
+  if M.name then
+    -- Do not list current session
+    local index = require("core.tbl").findKey(sessions, M.name)
+    if index then
+      table.remove(sessions, index)
+    end
+  end
+  if #sessions == 0 then
+    vim.notify("No sessions to select from", vim.log.levels.INFO)
+    return
+  end
+  vim.ui.select(sessions, {
+    prompt = "Load Session",
+    -- format_item = function(item) return utils.shorten_path(item.dir) end,
+  }, function(item)
+    if item then
+      on_select(item, force)
+    end
+  end)
+end
+
+function M.source(name)
+  local swapfile = vim.o.swapfile
+  vim.o.swapfile = false
+  vim.api.nvim_exec_autocmds('User', { pattern = 'SessionLoadPre' })
+  vim.api.nvim_command('silent source ' .. tostring(M.dir:joinpath(name)))
+  --vim.api.nvim_exec_autocmds('User', { pattern = 'SessionLoadPost' }) -- done by vimscript in session file
+  M.name = M.get_name(vim.v.this_session)
+  vim.o.swapfile = swapfile
+end
+
+function M.merge(name, force)
+  if name then
+    M.source(name)
   else
-    M.clean(opts and opts.force or false, loader)
+    M.choose(M.source, force)
   end
 end
 
-function M.save(name)
+function M.load(name, force)
+  if name then
+    M.clear(force, function() M.source(name) end)
+  else
+    M.choose(M.load, force)
+  end
+end
+
+function M.new(name, force)
+  if name then
+    M.save(name, force)
+    return
+  end
+
+  name = ""
+  vim.ui.input({prompt = "Enter session name: ", default = name}, function(input)
+    if input then
+      M.save(input, force)
+    end
+  end)
+end
+
+function M.save(name, force)
+  name = name or M.name
+  if not name then
+    M.new()
+    return
+  end
+  if M.name ~= name and not force and M.dir:joinpath(name):exists() then
+    local choice = vim.fn.confirm("Session file \""..name.."\" already exists. Overwrite?", "&Yes\n&No\n&Cancel")
+    if choice == 1 then
+      -- fallthrough
+    elseif choice == 2 then
+      M.new(name)
+      return
+    else
+      return
+    end
+  end
+
+  M.name = name
+
   if not M.dir:is_dir() then
     M.dir:mkdir()
   end
@@ -65,8 +179,14 @@ function M.save(name)
   end
   -- TODO backup the old session before rewrite
   vim.api.nvim_exec_autocmds('User', { pattern = 'SessionSavePre' })
-  vim.api.nvim_command('mksession! ' .. tostring(M.dir:joinpath(name or M.name)))
+  vim.api.nvim_command('mksession! ' .. tostring(M.dir:joinpath(M.name)))
   vim.api.nvim_exec_autocmds('User', { pattern = 'SessionSavePost' })
+end
+
+function M.autosave()
+  if M.name then
+    M.save()
+  end
 end
 
 function M.detach()
@@ -83,19 +203,26 @@ function M.has_changes()
   return false
 end
 
--- TODO Maybe after clean or detach ask user for next session name. And decide to create new or load existing
-function M.clean(force, callback)
-  if not force then
+function M.save_if_changed(skip_save)
+  if not skip_save and M.has_changes() then
     -- Ask to save files in current session before closing them.
-    if M.has_changes() then
-      local choice = vim.fn.confirm('The files in the current session have changed. Save changes?', '&Yes\n&No\n&Cancel')
-      if choice == 3 or choice == 0 then
-        return -- Cancel.
-      elseif choice == 1 then
-        vim.api.nvim_command('silent wall')
-      end
+    local choice = vim.fn.confirm('The files in the current session have changed. Save changes?', '&Yes\n&No\n&Cancel')
+    if choice == 3 or choice == 0 then
+      return false -- Cancel.
+    elseif choice == 1 then
+      vim.api.nvim_command('silent wall')
     end
   end
+  return true
+end
+
+-- TODO Maybe after clear or detach ask user for next session name. And decide to create new or load existing
+function M.clear(force, callback)
+  if not M.save_if_changed(force) then
+    return
+  end
+  -- Save sesssion if there is one
+  M.autosave()
 
   -- Schedule buffers cleanup to avoid callback issues
   vim.schedule(function()
@@ -126,24 +253,6 @@ function M.list_all_recent()
   return sessions
 end
 
--- function M.choose()
---   -- If we are in a session already, don't list the current session.
---   if utils.is_session then
---     local cwd = vim.loop.cwd()
---     local is_current_session = cwd and config.dir_to_session_filename(cwd).filename == sessions[1].filename
---     if is_current_session then
---       table.remove(sessions, 1)
---     end
---   end
---
---   -- If no sessions to list, send a notification.
---   if #sessions == 0 then
---     vim.notify('The only available session is your current session. Nothing to select from.', vim.log.levels.INFO)
---   end
---
---   return sessions
--- end
-
 ---@param buffer number: buffer ID.
 ---@return boolean: `true` if this buffer could be restored later on loading.
 function M.is_restorable(buffer)
@@ -168,5 +277,7 @@ function M.is_restorable(buffer)
 
   return true
 end
+
+M.init()
 
 return M

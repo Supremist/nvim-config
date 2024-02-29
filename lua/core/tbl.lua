@@ -11,6 +11,14 @@ function M.deep_update(dst, src)
   return dst
 end
 
+function M.findKey(tbl, val)
+  for key, value in pairs(tbl) do
+    if value == val then
+      return key
+    end
+  end
+end
+
 function M.shallowcopy(tbl)
   local res = {}
   for key, val in pairs(tbl) do

@@ -38,7 +38,7 @@ function M.load()
   require("config.wm")
   KeymapsConf.global:set()
   M.load_plugins()
-  require("core.session").init()
+  require("core.session")
 end
 
 function M.unload()
@@ -57,8 +57,10 @@ function M.unload()
 end
 
 function M.reload()
+  vim.g.Reloading = true
   M.unload()
   require("core.main").load()
+  vim.g.Reloading = nil
 end
 
 function M.on_lazy_spec_load()

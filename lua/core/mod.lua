@@ -108,8 +108,11 @@ function M.optional(module, on_err)
 end
 
 function M.reload(module)
+  vim.g.Reloading = true
   M.unload(module)
-  return require(module)
+  local ret = require(module)
+  vim.g.Reloading = nil
+  return ret
 end
 
 function M.reload_file(file)
