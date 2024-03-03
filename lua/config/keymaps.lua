@@ -365,4 +365,19 @@ M.plugins["noice.nvim"] = Keymaps.parse({
   {"nis", "<C-f>", function() if not require("noice.lsp").scroll(4) then return "<c-f>" end end, "Scroll forward", silent = true, expr = true},
   {"nis", "<C-b>", function() if not require("noice.lsp").scroll(-4) then return "<c-b>" end end, "Scroll backward", silent = true, expr = true},
 }, {name = "Noice"})
+
+M.plugins.undotree = Keymaps.parse({
+  {"n", "<L>uu", W("undotree").open(), "Open"},
+}, {name = "UndoTree"})
+M.undotree_keymaps = Keymaps.parse({
+  {"n", "j", "move_next", "To next node"},
+  {"n", "k", "move_prev", "To prev node"},
+  {"n", "gj", "move2parent", "To parent node"},
+  {"n", "J", "move_change_next", "To next node & undo"},
+  {"n", "K", "move_change_prev", "To prev node & undo"},
+  {"n", "↲", "action_enter", "Undo"},
+  {"n", "p", "enter_diffbuf", "To diff window"},
+  {"n", "q", "quit", "quit"},
+}, {name = "UndoTree", manual = true})
+
 return M

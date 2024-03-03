@@ -29,3 +29,12 @@ opt.showbreak="↪"
 opt.listchars="tab: ⎯→,nbsp:␣,lead:•,multispace:•,trail:•,extends:⟩,precedes:⟨"
 
 opt.sessionoptions="buffers,curdir,folds,help,tabpages,winsize,terminal,skiprtp" -- winpos,resize
+
+-- Undo persistence
+opt.undofile = true
+opt.undolevels = 2000 -- Max number of saved undo changes
+-- opt.undodir = vim.fn.stdpath("data").."/undo" -- the default
+
+-- Debug options
+-- opt.verbose = 5 -- [0, 16] level
+-- opt.verbosefile = vim.fn.stdpath("data").."/verbose.log"
