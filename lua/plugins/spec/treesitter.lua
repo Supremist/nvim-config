@@ -6,7 +6,10 @@ return {
   { "nvim-treesitter",
     event = { "BufReadPost", "BufNewFile" },
     cmd = { "TSUpdateSync" },
-    ---@type TSConfig
+    init = function(plugin)
+      require("lazy.core.loader").add_to_rtp(plugin)
+      require("nvim-treesitter.query_predicates")
+    end,
     opts = {
       highlight = {
         enable = true,

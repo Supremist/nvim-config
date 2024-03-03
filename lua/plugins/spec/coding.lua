@@ -129,7 +129,7 @@ local M = {
       -- register all text objects with which-key
       require("core.aucmd").on_plugin_load("which-key.nvim", function()
         whk_maps.mode = {"x", "o"}
-        vim.print(whk_maps)
+        -- vim.print(whk_maps)
         require("which-key").register(whk_maps)
       end)
     end,

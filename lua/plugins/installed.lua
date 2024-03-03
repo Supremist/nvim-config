@@ -4,6 +4,18 @@
 -- Entries may also contain fields, required for loading.
 -- Such as: lazy, priority, enabled, cond, module, build, dependencies
 
+-- local plugins need to be explicitly configured with dir
+-- { dir = "~/projects/secret.nvim" },
+
+-- you can use a custom url to fetch a plugin
+-- { url = "git@github.com:folke/noice.nvim.git" },
+
+-- local plugins can also be configure with the dev option.
+-- This will use {config.dev.path}/noice.nvim/ instead of fetching it from Github
+-- With the dev option, you can easily switch between the local and installed version of a plugin
+-- { "folke/noice.nvim", dev = true },
+
+
 require("core.main").on_lazy_spec_load()
 
 return {
@@ -45,9 +57,20 @@ return {
     },
   },
 
+  -- prettier cmdline, better :messages, replcae :h more-prompt
+  { "folke/noice.nvim", dev = true,
+    dependencies = {
+      "MunifTanjim/nui.nvim",
+      -- "rcarriga/nvim-notify",
+    },
+  },
+
+  { "nvim-lualine/lualine.nvim",
+   dependencies = { 'nvim-tree/nvim-web-devicons' },
+  },
+
   -- fuzzy finder
   { "nvim-telescope/telescope.nvim",
-    commit = vim.fn.has("nvim-0.9.0") == 0 and "057ee0f8783" or nil,
     version = false, -- telescope did only one release, so use HEAD for now
     dependencies = {
       "nvim-lua/plenary.nvim",

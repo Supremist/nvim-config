@@ -50,4 +50,5 @@ require("lazy").setup({
       },
     },
   },
+  dev = { path = "D:/workspace/"},
 })

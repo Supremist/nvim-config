@@ -56,6 +56,7 @@ Keymaps.set_shorthands({
   ["<Cr>"] = {"↲"},
   ["<Space>"] = {"␣"},
   ["<Tab>"] = {"⭾"},
+  ["<S-Enter>"] = {"S↲"},
 })
 
 M.which_key_groups = Keymaps.parse {
@@ -354,4 +355,14 @@ M.lsp.clangd = Keymaps.parse {
   {"n", "<L>cR", cmd("ClangdSwitchSourceHeader"), "Switch Source/Header (C/C++)"},
 }
 
+M.plugins["noice.nvim"] = Keymaps.parse({
+  {"c", "S↲", function() require("noice").redirect(vim.fn.getcmdline()) end, "Redirect Cmdline" },
+  {"n", "<L>snl", W("noice").cmd("last"), "Last Message" },
+  {"n", "<L>snh", W("noice").cmd("history"), "History" },
+  {"n", "<L>sna", W("noice").cmd("all"), "All" },
+  {"n", "<L>snd", W("noice").cmd("dismiss"), "Dismiss All" },
+  -- TODO use layers
+  {"nis", "<C-f>", function() if not require("noice.lsp").scroll(4) then return "<c-f>" end end, "Scroll forward", silent = true, expr = true},
+  {"nis", "<C-b>", function() if not require("noice.lsp").scroll(-4) then return "<c-b>" end end, "Scroll backward", silent = true, expr = true},
+}, {name = "Noice"})
 return M
