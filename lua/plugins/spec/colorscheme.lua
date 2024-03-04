@@ -1,6 +1,7 @@
-return {
+return require("core.plugin_spec").spec({
   { 
     "ellisonleao/gruvbox.nvim",
+    optional = false,
 	-- lazy = false,
 	-- priority = 1000,
 	config = function() 
@@ -17,6 +18,7 @@ return {
   -- },
   {
     "marko-cerovac/material.nvim",
+    optional = false,
     -- lazy = false,
     -- priority = 1000,
 	opts = {
@@ -50,6 +52,7 @@ return {
   
   { "NvChad/nvim-colorizer.lua",
     lazy = false,
+    optional = false,
     opts = {
       filetypes = { "*" },
     }
@@ -59,6 +62,7 @@ return {
     lazy = false,
     priority = 1000,
     reloadable = true,
+    optional = false,
     opts = function(plug, opts)
       return require("core.mod").reload("theme.nightfox_override").get_options("carbonfox")
     end,
@@ -67,4 +71,4 @@ return {
       vim.cmd([[colorscheme carbonfox]])
     end,
   },
-}
+})

@@ -1,6 +1,6 @@
 local optional = require("core.mod").optional
 
-return {
+return require("core.plugin_spec").spec({
 
   -- file explorer
   { "neo-tree.nvim",
@@ -185,4 +185,4 @@ return {
       require("undotree").setup(opts)
     end,
   }
-}
+})

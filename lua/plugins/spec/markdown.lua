@@ -1,4 +1,4 @@
-return {
+return require("core.plugin_spec").spec({
   { "markdown-preview.nvim",
     optional = true,
     cmd = { "MarkdownPreviewToggle", "MarkdownPreview", "MarkdownPreviewStop" },
@@ -9,4 +9,4 @@ return {
     end,
     ft = { "markdown" },
   },
-}
+})

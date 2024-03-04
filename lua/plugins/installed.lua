@@ -58,7 +58,7 @@ return {
   },
 
   -- prettier cmdline, better :messages, replcae :h more-prompt
-  { "folke/noice.nvim", dev = true,
+  { "folke/noice.nvim", --dev = true,
     dependencies = {
       "MunifTanjim/nui.nvim",
       -- "rcarriga/nvim-notify",

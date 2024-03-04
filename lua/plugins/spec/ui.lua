@@ -18,7 +18,7 @@ local rainbow_dim_highlights = {
   "RainbowDimCyan",
 }
 
-return {
+return require("core.plugin_spec").spec({
   { "rainbow-delimiters.nvim",
     event = "VeryLazy",
     reloadable = true,
@@ -215,4 +215,4 @@ return {
       }
     end,
   },
-}
+})

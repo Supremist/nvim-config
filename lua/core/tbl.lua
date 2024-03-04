@@ -11,6 +11,14 @@ function M.deep_update(dst, src)
   return dst
 end
 
+function M.array_append(dst, src)
+  local sz = #dst
+  for i = 1, #src do
+    dst[sz+i] = src[i]
+  end
+  return dst
+end
+
 function M.findKey(tbl, val)
   for key, value in pairs(tbl) do
     if value == val then

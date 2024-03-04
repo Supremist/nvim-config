@@ -1,4 +1,4 @@
-return {
+return require("core.plugin_spec").spec({
   -- Treesitter is a new parser generator tool that we can
   -- use in Neovim to power faster and more accurate
   -- syntax highlighting.
@@ -64,4 +64,4 @@ return {
       require("nvim-treesitter.configs").setup(opts)
     end,
   },
-}
+})

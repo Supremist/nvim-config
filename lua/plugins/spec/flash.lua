@@ -4,7 +4,7 @@ local optional = require("core.mod").optional
 -- at the end of each match, letting you quickly jump to a Mific
 -- location.
 local Flash = require("core.mod").patch("flash")
-local M = { "flash.nvim",
+local M = require("core.plugin_spec").spec({ "flash.nvim",
   event = "VeryLazy",
   reloadable = true,
   opts = {
@@ -48,7 +48,7 @@ local M = { "flash.nvim",
       end
     end
   },
-}
+})
 
 function Flash.jump(opts)
   opts = opts or {}

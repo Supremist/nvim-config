@@ -178,4 +178,4 @@ function cmp_patch.mapping.complete_or_select(dir, opts)
   end
 end
 
-return M
+return require("core.plugin_spec").spec(M)

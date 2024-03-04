@@ -215,7 +215,7 @@ function lsp.config(_, opts)
 end
 
 
-return {
+return require("core.plugin_spec").spec({
   clangd,
   lsp,
-}
+})
