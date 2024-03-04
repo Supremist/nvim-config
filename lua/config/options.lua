@@ -30,6 +30,7 @@ opt.listchars="tab: ⎯→,nbsp:␣,lead:•,multispace:•,trail:•,extends:�
 
 opt.sessionoptions="buffers,curdir,folds,help,tabpages,winsize,terminal,skiprtp" -- winpos,resize
 
+opt.fileformats="unix,dos"
 -- Undo persistence
 opt.undofile = true
 opt.undolevels = 2000 -- Max number of saved undo changes
