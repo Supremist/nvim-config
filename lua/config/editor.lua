@@ -36,6 +36,7 @@ function M.update_scroll(winid)
   vim.wo.scroll = math.floor(M.scroll_factor * height + 0.5)
 end
 
+-- TODO sometimes scroll not updated. Need investigation. Maybe related to session or wiping buffers
 require("core.aucmd").add_cmd({"WinEnter", "WinNew", "WinResized"}, "*",
   function() M.update_scroll() end, "Update scrolloff according to scrolloff_factor")
 

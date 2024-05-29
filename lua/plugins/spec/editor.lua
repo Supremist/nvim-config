@@ -134,6 +134,8 @@ return require("core.plugin_spec").spec({
         changedelete = { text = "▎" },
         untracked = { text = "▎" },
       },
+      attach_to_untracked = true,
+      attach_to_out_of_repo = true,
       on_attach = require("config.keymaps").attach_gitsigns
     },
   },

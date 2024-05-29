@@ -58,7 +58,8 @@ return {
   },
 
   -- prettier cmdline, better :messages, replcae :h more-prompt
-  { "folke/noice.nvim", --dev = true,
+  { "folke/noice.nvim",
+    dev = true,
     dependencies = {
       "MunifTanjim/nui.nvim",
       -- "rcarriga/nvim-notify",
@@ -93,7 +94,9 @@ return {
   -- git signs highlights text that has changed since the list
   -- git commit, and also lets you interactively stage & unstage
   -- hunks in a commit.
-  { "lewis6991/gitsigns.nvim" },
+  { "lewis6991/gitsigns.nvim",
+    dev = true, opts = {debug_mode = true},
+  },
 
   -- Automatically highlights other instances of the word under your cursor.
   -- This works with LSP, Treesitter, and regexp matching to find the other
