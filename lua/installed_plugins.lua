@@ -33,6 +33,7 @@ return {
       "hrsh7th/cmp-buffer",
       "hrsh7th/cmp-path",
       "saadparwaiz1/cmp_luasnip",
+      "Saecki/crates.nvim",
     },
   },
 
@@ -117,6 +118,10 @@ return {
     dependencies = {
       { "nvim-treesitter/nvim-treesitter-textobjects" },
     },
+  },
+
+  { "mrcjkb/rustaceanvim",
+    version = "^4", -- Recommended
   },
 
   { "jiaoshijie/undotree",

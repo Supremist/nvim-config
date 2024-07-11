@@ -47,6 +47,8 @@ return require("core.plugin_spec").spec({
         "vim",
         "vimdoc",
         "yaml",
+        "rust",
+        "ron",
       },
       -- Incremental selection overpowered by "flash" mode for treesitter
       -- incremental_selection = {
