@@ -40,6 +40,9 @@ local M = require("core.plugin_spec").spec({ "flash.nvim",
             matches[i].label = labels[i]
           end
         end,
+      },
+      search = {
+        enabled = true,
       }
     },
     config = function(conf)
