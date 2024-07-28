@@ -27,6 +27,7 @@ editor.set_hybridnumber(true)
 opt.list = true
 opt.showbreak="↪"
 opt.listchars="tab: ⎯→,nbsp:␣,lead:•,multispace:•,trail:•,extends:⟩,precedes:⟨"
+opt.virtualedit="block,onemore"
 
 opt.sessionoptions="buffers,curdir,folds,help,tabpages,winsize,terminal,skiprtp" -- winpos,resize
 

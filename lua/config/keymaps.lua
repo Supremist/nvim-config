@@ -78,6 +78,19 @@ M.which_key_groups = Keymaps.parse {
   {"n", "<L>x", "...", "+diagnostics/quickfix" },
 }
 
+local function better_paste(mode, default_reg)
+  local reg = vim.v.register or '"'
+  if reg == '"' then
+    reg = default_reg
+  end
+  local regtype = vim.fn.getregtype(reg)
+  local action = "gP" -- paste before cursor, move forward 1 char
+  if regtype == "l" or regtype == "V" or mode == "x" then
+    action = "p" -- unless its linewise regtype or visual mode, then paste after
+  end
+  return '"'..reg..action
+end
+
 M.global = Keymaps.parse {
 -- Better up/down
 -- mode   lhs  rhs                                description
@@ -90,13 +103,25 @@ M.global = Keymaps.parse {
   {"i", "↑", "<C-o>gk", "move up one *wrapped* line"},
   {"i", "↓", "<C-o>gj", "move down one *wrapped* line"},
 
+  {"n", "<End>", "$l",      "Move one past the end of line"}, -- need virtualedit=onemore
+  {"n", "<Home>", "^",      "Move to first non blank char in line"},
+  {"i", "<Home>", "<C-o>^", "Move to first non blank char in line"},
+
 --Move lines
-  {"n", "<A-j>", "<CMD>m .+1<CR>==", "Move lines down"},
+  {"n", "<A-j>", "<CMD>m .+1<CR>==",        "Move lines down"},
   {"i", "<A-j>", "<ESC><CMD>m .+1<CR>==gi", "Move lines down"},
-  {"v", "<A-j>", ":m '>+1<CR>gv=gv", "Move lines down"},
-  {"n", "<A-k>", "<CMD>m .-2<CR>==", "Move lines up"},
+  {"v", "<A-j>", ":m '>+1<CR>gv=gv",        "Move lines down"},
+  {"n", "<A-k>", "<CMD>m .-2<CR>==",        "Move lines up"},
   {"i", "<A-k>", "<ESC><CMD>m .-2<CR>==gi", "Move lines up"},
-  {"v", "<A-k>", ":m '<-2<CR>gv=gv", "Move lines up"},
+  {"v", "<A-k>", ":m '<-2<CR>gv=gv",        "Move lines up"},
+
+--Yank/Paste
+  {"n", "p", function() return better_paste("n", "0") end, "Paste from yank register", expr=true},
+  {"x", "p", function() return better_paste("x", "0") end, "Paste from yank register", expr=true},
+  {"n", "P", function() return better_paste("n", "+") end, "Paste from OS register", expr=true},
+  {"x", "P", function() return better_paste("x", "+") end, "Paste from OS register", expr=true},
+  {"!", "<C-r>", "<C-r><C-p>", "Paste and autoindent"},
+  -- {"nx", '""', function() vim.print("kek"); return '""'; end, "Unnamed register remap", expr=true},
 
 -- Consistant mappings
   {"i", "<C-H>", "<C-w>", "delete previous word"}, -- <C-BS> is <C-H> because of terminal app
@@ -105,6 +130,7 @@ M.global = Keymaps.parse {
 --Leader
   {"n", "<L>ra", W("core.main").reload(), "Reload all config"},
   {"n", "<L>rf", function() require("core.mod").reload_file(vim.api.nvim_buf_get_name(0)) end, "Reload file"},
+  {"n", "<L>v", "`[v`]", "Select last changed or yanked text"},
 }
 
 local tree = require("neo-tree.command")
