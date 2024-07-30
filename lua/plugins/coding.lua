@@ -185,9 +185,13 @@ local M = {
       end
       -- register all text objects with which-key
       require("core.aucmd").on_plugin_load("which-key.nvim", function()
+        whk_maps = require("core.tbl").flatten2(whk_maps, function(k,v)
+          if type(v) == "string" then
+            return true, {table.concat(k), desc=v}
+          end
+        end)
         whk_maps.mode = {"x", "o"}
-        -- vim.print(whk_maps)
-        require("which-key").register(whk_maps)
+        require("which-key").add(whk_maps)
       end)
     end,
   },

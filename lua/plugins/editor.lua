@@ -109,14 +109,22 @@ return require("core.plugin_spec").spec({
   { "which-key.nvim",
     event = "VeryLazy",
     reloadable = true,
-    opts = {},
+    opts = {
+      replace = {
+        key = {
+          function(key)
+            return require("which-key.view").format(key)
+          end,
+        }
+      }
+    },
     config = function(_, opts)
       local wk = require("which-key")
       local K = require("core.keymaps")
-      opts.key_labels = K.key_labels()
+      vim.list_extend(opts.replace.key, K.key_labels())
       local maps = require("config.keymaps").which_key_groups:to_whichkey()
       wk.setup(opts)
-      wk.register(maps)
+      wk.add(maps)
     end,
   },
 

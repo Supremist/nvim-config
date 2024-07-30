@@ -67,6 +67,23 @@ function M.flatten(tbl, depth, dest)
   return dest
 end
 
+function M.flatten2(tbl, fn, dest, path)
+  dest = dest or {}
+  path = path or {}
+  local stop, v = fn(path, tbl)
+  if stop then
+    table.insert(dest, v)
+    return dest
+  end
+  local next_path = M.shallowcopy(path)
+  local ind = #next_path + 1
+  for key, value in pairs(tbl) do
+    next_path[ind] = key
+    M.flatten2(value, fn, dest, next_path)
+  end
+  return dest
+end
+
 function M.set(tbl, path, value)
   for i = 1, #path-1, 1 do
     local key = path[i]
@@ -77,6 +94,9 @@ function M.set(tbl, path, value)
 end
 
 function M.get(tbl, path)
+  if not path then
+    return tbl
+  end
   for _, key in ipairs(path) do
     tbl = tbl[key]
     if tbl == nil then
@@ -88,13 +108,7 @@ end
 
 function M.reshape(value, key_scheme, value_scheme)
   if #key_scheme == 0 then
-    if not value_scheme or #value_scheme == 0 then
-      return value
-    end
-    for _, value_name in pairs(value_scheme) do
-      value = value[value_name]
-    end
-    return value
+    return M.get(value, value_scheme)
   end
   local key_name = key_scheme[1]
   key_scheme = M.shallowcopy(key_scheme)

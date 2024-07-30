@@ -60,22 +60,22 @@ Keymaps.set_shorthands({
 })
 
 M.which_key_groups = Keymaps.parse {
-  {"n", "g",    "...", "+goto" },
-  {"n", "r",    "...", "+reload" },
-  {"n", "gz",   "...", "+surround" },
-  {"n", "]",    "...", "+next" },
-  {"n", "[",    "...", "+prev" },
-  {"n", "<L>⭾", "...", "+tabs" },
-  {"n", "<L>b", "...", "+buffer" },
-  {"n", "<L>c", "...", "+code" },
-  {"n", "<L>f", "...", "+file/find" },
-  {"nv","<L>g", "...", "+git" },
-  {"n", "<L>gh","...", "+hunks" },
-  {"n", "<L>q", "...", "+quit/session" },
-  {"n", "<L>s", "...", "+search" },
-  {"n", "<L>u", "...", "+ui" },
-  {"n", "<L>w", "...", "+windows" },
-  {"n", "<L>x", "...", "+diagnostics/quickfix" },
+  {"n", "g",    "...", "goto" },
+  {"n", "r",    "...", "reload" },
+  {"n", "gz",   "...", "surround" },
+  {"n", "]",    "...", "next" },
+  {"n", "[",    "...", "prev" },
+  {"n", "<L>⭾", "...", "tabs" },
+  {"n", "<L>b", "...", "buffer" },
+  {"n", "<L>c", "...", "code" },
+  {"n", "<L>f", "...", "file/find" },
+  {"nv","<L>g", "...", "git" },
+  {"n", "<L>gh","...", "hunks" },
+  {"n", "<L>q", "...", "quit/session" },
+  {"n", "<L>s", "...", "search" },
+  {"n", "<L>u", "...", "ui" },
+  {"n", "<L>w", "...", "windows" },
+  {"n", "<L>x", "...", "diagnostics/quickfix" },
 }
 
 local function better_paste(mode, default_reg)

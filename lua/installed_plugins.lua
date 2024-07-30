@@ -38,7 +38,7 @@ return {
   },
 
   -- code commenting
-  { "numToStr/Comment.nvim" },
+  -- { "numToStr/Comment.nvim" },
 
   -- lspconfig
   { "neovim/nvim-lspconfig",
@@ -108,6 +108,7 @@ return {
   -- buffer remove
   { "echasnovski/mini.bufremove" },
   { "echasnovski/mini.ai" },
+  { "echasnovski/mini.icons" }, -- optional which-key dependency
 
   { "karb94/neoscroll.nvim" },
 

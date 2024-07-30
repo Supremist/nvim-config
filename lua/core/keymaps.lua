@@ -71,25 +71,23 @@ function Keymaps:to_lazy()
   return res
 end
 
-function Keymaps:to_whichkey()
+function Keymaps:to_whichkey(show_empty)
   local res = {}
-  local modes = {}
   for _, keymap in ipairs(self.list) do
-    modes[keymap.mode] = true
     local spec = {}
+    spec[1] = keymap.lhs
+    spec.mode = keymap.mode
+    spec.hidden = false
     if keymap.rhs == "..." then
-      spec.name = keymap.desc
-      -- workaround for https://github.com/folke/which-key.nvim/issues/482
-      spec["<F20>"] = "which_key_ignore"
+      spec.group = keymap.desc
     else
-      spec[1] = keymap.rhs
-      spec[2] = keymap.desc
+      spec[2] = keymap.rhs
+      spec.desc = keymap.desc
     end
-    res[keymap.lhs] = spec
-  end
-  res.mode = {}
-  for mode, _ in pairs(modes) do
-    table.insert(res.mode, mode)
+    table.insert(res, spec)
+    if show_empty then
+      table.insert(res, {keymap.lhs.."<F20>", desc = "..."})
+    end
   end
   return res
 end
@@ -121,8 +119,8 @@ end
 function M.key_labels()
   local labels = {}
   for key, shorts in pairs(M.shorthands) do
-    labels[key] = shorts[1]
-    labels[key:lower()] = shorts[1]
+    table.insert(labels, {key, shorts[1]})
+    table.insert(labels, {key:lower(), shorts[1]})
   end
   return labels
 end
