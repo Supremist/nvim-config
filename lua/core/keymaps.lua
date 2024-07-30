@@ -372,4 +372,54 @@ function M.forward_mod(module)
   return M.wrap(function() return require(module) end, "forward")
 end
 
+function M.save_view()
+  -- credits to https://github.com/gbprod/stay-in-place.nvim
+  local unpack = table.unpack or unpack
+  local res = {}
+  res.line, res.col = unpack(vim.api.nvim_win_get_cursor(0))
+  res.len_before = vim.api.nvim_get_current_line():len()
+  res.winview = vim.fn.winsaveview()
+  return res
+end
+
+function M.restore_view(view)
+  vim.fn.winrestview(view.winview)
+  local len_after = vim.api.nvim_get_current_line():len()
+  local new_col = math.max(0, view.col - view.len_before + len_after)
+  vim.api.nvim_win_set_cursor(0, { view.line, new_col })
+end
+
+M._context = {}
+
+function M.opfunc_dispatch(motion_type)
+  M._context.motion_type = motion_type
+  local args = M._context.args
+  local unpack = table.unpack or unpack
+  M._context.opfunc(M._context, unpack(args))
+  M._context.is_repeat = true
+end
+
+function M.set_opfunc(func, ...)
+  M._context.args = {...}
+  M._context.view = M.save_view()
+  M._context.register = vim.v.register
+  M._context.count = vim.v.count
+  M._context.is_repeat = false
+  M._context.restore_view = function() M.restore_view(M._context.view) end
+  if type(func) == "function" then
+    M._context.opfunc = func
+    func = {"core.keymaps", "opfunc_dispatch"}
+  end
+  vim.go.opfunc = "v:lua.require'"..func[1].."'."..func[2]
+end
+
+function M.operator(func, ...)
+  local args = {...}
+  return function()
+    local unpack = table.unpack or unpack
+    M.set_opfunc(func, unpack(args))
+    return "g@"
+  end
+end
+
 return M

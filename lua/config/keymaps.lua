@@ -114,6 +114,7 @@ M.global = Keymaps.parse {
   {"n", "<A-k>", "<CMD>m .-2<CR>==",        "Move lines up"},
   {"i", "<A-k>", "<ESC><CMD>m .-2<CR>==gi", "Move lines up"},
   {"v", "<A-k>", ":m '<-2<CR>gv=gv",        "Move lines up"},
+  -- TODO: <A-h>, <A-l> - map to indent, dedent?
 
 --Yank/Paste
   {"n", "p", function() return better_paste("n", "0") end, "Paste from yank register", expr=true},
@@ -122,6 +123,11 @@ M.global = Keymaps.parse {
   {"x", "P", function() return better_paste("x", "+") end, "Paste from OS register", expr=true},
   {"!", "<C-r>", "<C-r><C-p>", "Paste and autoindent"},
   -- {"nx", '""', function() vim.print("kek"); return '""'; end, "Unnamed register remap", expr=true},
+
+  {"n", "=", Keymaps.operator(function(c)
+    vim.cmd(string.format("keepjumps execute \"'[,']normal! = %s\"", c.count))
+    c.restore_view()
+  end), "", expr=true},
 
 -- Consistant mappings
   {"i", "<C-H>", "<C-w>", "delete previous word"}, -- <C-BS> is <C-H> because of terminal app
