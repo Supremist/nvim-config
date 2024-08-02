@@ -185,6 +185,7 @@ local function parse_complex_rhs(keymap)
       vim.api.nvim_feedkeys(M.termcodes(keymap.lhs), "n", false)
     end
   end
+  rhs.type = tp
   return rhs
 end
 

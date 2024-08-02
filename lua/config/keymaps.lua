@@ -179,7 +179,7 @@ M.plugins["telescope.nvim"] = Keymaps.parse {
   { "n", "<L>gc", "<cmd>Telescope git_commits<CR>", "commits" },
   { "n", "<L>gs", "<cmd>Telescope git_status<CR>", "status" },
   -- search
-  { "n", '<L>s"', "<cmd>Telescope registers<cr>", "Registers" },
+  { "n", '<L>s"', Util.telescope("registers", {flash = true}), "Registers" },
   { "n", "<L>sa", "<cmd>Telescope autocommands<cr>", "Auto Commands" },
   { "n", "<L>sb", "<cmd>Telescope current_buffer_fuzzy_find<cr>", "Buffer" },
   { "n", "<L>sc", "<cmd>Telescope command_history<cr>", "Command History" },
@@ -256,16 +256,21 @@ M.telescope_mappings = Keymaps.parse {
   {"i", "<C-s>", F("flash").telescope()},
   {"n", "s", F("flash").telescope()},
   {"n", "q", F("telescope.actions").close()},
+  {"i", "<Esc>", F("telescope.actions").close()},
+  {"i", "<C-c>", {"<Esc>", type="command"}}, -- To normal mode
 }
 
 function M.flash_in_telescope(buf)
   local act = W("telescope.actions")
   return Keymaps.parse({
-    {"n", "j", act.move_selection_next(buf)},
-    {"n", "k", act.move_selection_previous(buf)},
-    {"n", "↓", act.move_selection_next(buf)},
-    {"n", "↑", act.move_selection_previous(buf)},
-    {"n", "↲", act.select_default(buf)},
+    {"", "j", act.move_selection_next(buf)},
+    {"", "k", act.move_selection_previous(buf)},
+    {"", "↓", act.move_selection_next(buf)},
+    {"", "↑", act.move_selection_previous(buf)},
+    {"", "↲", act.select_default(buf)},
+    {"", "<C-s>", function(--[[state, c--]]) return false end}, -- close flash
+    {"", "<C-c>", function(--[[state, c--]]) return false end}, -- close flash
+    {"", "<Cr>",  function(--[[state, c--]]) return false end}, -- close flash
   }):reshape({"id"}, {1, "rhs"})
 end
 

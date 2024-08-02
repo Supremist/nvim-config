@@ -74,6 +74,11 @@ function M.telescope(builtin, opts)
       end
     end
 
+    if opts.flash then
+      opts.on_complete = { function()
+        require("flash").telescope()
+      end }
+    end
     require("telescope.builtin")[builtin](opts)
   end
 end

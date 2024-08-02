@@ -4,7 +4,7 @@ local optional = require("core.mod").optional
 -- at the end of each match, letting you quickly jump to a Mific
 -- location.
 local Flash = require("core.mod").patch("flash")
-local M = require("core.plugin_spec").spec({ "flash.nvim",
+local M = { "flash.nvim",
   event = "VeryLazy",
   reloadable = true,
   opts = {
@@ -12,15 +12,17 @@ local M = require("core.plugin_spec").spec({ "flash.nvim",
     label = {
       uppercase = false,
       reuse = "all",
+      style = "inline",
     },
     modes = {
       telescope = {
         pattern = "^.",
         prompt = { enabled = false },
-        label = { after = {0, -1}, exclude = "jk" },
+        label = { after = {0, -1}, exclude = "jk", style="overlay" },
         highlight = { backdrop = false, matches = false },
         search = {
           mode = "search",
+          max_length = 1,
           exclude = {
             function(win)
               return vim.bo[vim.api.nvim_win_get_buf(win)].filetype ~= "TelescopeResults"
@@ -28,7 +30,7 @@ local M = require("core.plugin_spec").spec({ "flash.nvim",
           },
         },
         abort = function()
-          vim.api.nvim_input("A")
+          -- vim.api.nvim_input("A")
         end,
         labeler = function(matches, state)
           local labels = state:labels()
@@ -51,12 +53,12 @@ local M = require("core.plugin_spec").spec({ "flash.nvim",
       end
     end
   },
-})
+}
 
 function Flash.jump(opts)
   opts = opts or {}
   local state = require("flash.repeat").get_state("jump", opts)
-  state:loop({abort = opts.abort})
+  state:loop({abort = opts.abort, jump_on_max_length = opts.jump_on_max_length, restore = opts.restore})
   return state
 end
 
@@ -102,13 +104,15 @@ end
 
 function Flash.telescope(prompt_bufnr)
   local opts = M.opts.modes.telescope
+  prompt_bufnr = prompt_bufnr or vim.api.nvim_get_current_buf()
   opts.action = function(match)
     local picker = require("telescope.actions.state").get_current_picker(prompt_bufnr)
     picker:set_selection(match.pos[1] - 1)
     require("telescope.actions").select_default(prompt_bufnr)
   end
   opts.actions = require("config.keymaps").flash_in_telescope(prompt_bufnr)
+  opts.jump_on_max_length = false
   Flash.jump(opts)
 end
 
-return M
+return require("core.plugin_spec").spec(M)
