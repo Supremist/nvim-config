@@ -225,6 +225,32 @@ local M = {
       },
     }
   },
+
+  { "nvim-neoclip.lua",
+    opts = {
+      enable_persistent_history = true,
+    },
+    config = function(_, opts)
+      require("core.aucmd").on_plugin_load("telescope.nvim", function()
+        require("telescope").load_extension("neoclip")
+      end)
+      require("neoclip").setup(opts)
+      require("neoclip").db_pull()
+    end,
+  },
+
+  -- { "yanky.nvim",
+  --   opts = {
+  --     ring = { storage = "sqlite" },
+  --   },
+  -- },
+
+  { "sqlite.lua",
+    init = function()
+      -- TODO cleanup this path
+      vim.g.sqlite_clib_path = "C:/usr/sqlite/sqlite3.dll"
+    end,
+  },
 }
 
 local cmp_patch = require("core.mod").patch("cmp", {mapping = {}})

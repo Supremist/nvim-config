@@ -62,6 +62,7 @@ function M.telescope(builtin, opts)
     end
     if opts.cwd and opts.cwd ~= vim.loop.cwd() then
       opts.attach_mappings = function(_, map)
+        -- TODO move mapping to config/keymaps.lua
         map("i", "<a-c>", function()
           local action_state = require("telescope.actions.state")
           local line = action_state.get_current_line()
@@ -75,11 +76,28 @@ function M.telescope(builtin, opts)
     end
 
     if opts.flash then
-      opts.on_complete = { function()
+      vim.schedule(function()
         require("flash").telescope()
-      end }
+      end)
     end
-    require("telescope.builtin")[builtin](opts)
+    local builtin_fn = require("telescope.builtin")[builtin]
+    if not builtin_fn then
+      local command_name = 'default'
+      builtin_fn = require('telescope').extensions[builtin][command_name]
+    end
+    builtin_fn(opts)
+    if builtin == "neoclip" then -- TODO "macroscope"
+      local actions = require("telescope.actions")
+      local action_state = require("telescope.actions.state")
+      actions.select_default:replace(function(bufnr)
+        local entry = action_state.get_selected_entry()
+        local handlers = require("neoclip.handlers")
+        actions.close(bufnr)
+        handlers.set_registers({'"'}, entry)
+        -- vim.api.nvim_put(entry.contents, entry.regtype, true, true)
+        vim.schedule(function() vim.api.nvim_input("p") end)
+      end)
+    end
   end
 end
 

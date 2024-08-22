@@ -40,6 +40,18 @@ return {
   -- code commenting
   -- { "numToStr/Comment.nvim" },
 
+  { "AckslD/nvim-neoclip.lua",
+    dependencies = {
+      {"kkharji/sqlite.lua", module = "sqlite"},
+    }
+  },
+
+  -- { "gbprod/yanky.nvim",
+  --   dependencies = {
+  --     {"kkharji/sqlite.lua", module = "sqlite"},
+  --   }
+  -- },
+
   -- lspconfig
   { "neovim/nvim-lspconfig",
     dependencies = {

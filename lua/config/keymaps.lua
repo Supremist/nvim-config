@@ -117,17 +117,18 @@ M.global = Keymaps.parse {
   -- TODO: <A-h>, <A-l> - map to indent, dedent?
 
 --Yank/Paste
-  {"n", "p", function() return better_paste("n", "0") end, "Paste from yank register", expr=true},
-  {"x", "p", function() return better_paste("x", "0") end, "Paste from yank register", expr=true},
-  {"n", "P", function() return better_paste("n", "+") end, "Paste from OS register", expr=true},
-  {"x", "P", function() return better_paste("x", "+") end, "Paste from OS register", expr=true},
-  {"!", "<C-r>", "<C-r><C-p>", "Paste and autoindent"},
+  {"n", "p", function() return better_paste("n", '"') end, "Paste from yank register", expr=true},
+  {"x", "p", function() return better_paste("x", '"') end, "Paste from yank register", expr=true},
+  {"n", "P", Util.telescope("neoclip", {flash = true}), "Paste from OS register"},
+  -- {"n", "P", function() return better_paste("n", "+") end, "Paste from OS register", expr=true},
+  -- {"x", "P", function() return better_paste("x", "+") end, "Paste from OS register", expr=true},
+  {"i", "<C-r>", "<C-r><C-p>", "Paste and autoindent"},
   -- {"nx", '""', function() vim.print("kek"); return '""'; end, "Unnamed register remap", expr=true},
 
-  {"n", "=", Keymaps.operator(function(c)
-    vim.cmd(string.format("keepjumps execute \"'[,']normal! = %s\"", c.count))
-    c.restore_view()
-  end), "", expr=true},
+  -- {"n", "=", Keymaps.operator(function(c)
+  --   vim.cmd(string.format("keepjumps execute \"'[,']normal! = %s\"", c.count))
+  --   c.restore_view()
+  -- end), "", expr=true},
 
 -- Consistant mappings
   {"i", "<C-H>", "<C-w>", "delete previous word"}, -- <C-BS> is <C-H> because of terminal app
@@ -263,6 +264,7 @@ M.telescope_mappings = Keymaps.parse {
 function M.flash_in_telescope(buf)
   local act = W("telescope.actions")
   return Keymaps.parse({
+    -- {"", "<C-p>", function() require("telescope.actions.layout").toggle_preview(buf) end},
     {"", "j", act.move_selection_next(buf)},
     {"", "k", act.move_selection_previous(buf)},
     {"", "↓", act.move_selection_next(buf)},
@@ -270,7 +272,6 @@ function M.flash_in_telescope(buf)
     {"", "↲", act.select_default(buf)},
     {"", "<C-s>", function(--[[state, c--]]) return false end}, -- close flash
     {"", "<C-c>", function(--[[state, c--]]) return false end}, -- close flash
-    {"", "<Cr>",  function(--[[state, c--]]) return false end}, -- close flash
   }):reshape({"id"}, {1, "rhs"})
 end
 

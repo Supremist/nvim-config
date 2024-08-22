@@ -1,4 +1,4 @@
-local keys = require "which-key.keys"
+-- local keys = require "which-key.keys"
 
 local file = {}
 local M = {}
