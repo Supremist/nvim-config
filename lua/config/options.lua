@@ -7,6 +7,7 @@ local opt = vim.opt
 opt.clipboard = ""
 opt.guifont = "JetBrainsMono Nerd Font:h11"
 opt.termguicolors = true
+opt.shell = 'nu'
 
 opt.tabstop = 4
 opt.softtabstop = 4
