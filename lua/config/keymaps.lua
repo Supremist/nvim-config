@@ -136,7 +136,7 @@ M.global = Keymaps.parse {
 
 --Leader
   {"n", "<L>ra", W("core.main").reload(), "Reload all config"},
-  {"n", "<L>rf", function() require("core.mod").reload_file(vim.api.nvim_buf_get_name(0)) end, "Reload file"},
+  {"n", "<L>rf", function() require("core.mod").save_and_reload_current_buf() end, "Reload file"},
   {"n", "<L>v", "`[v`]", "Select last changed or yanked text"},
 }
 

@@ -123,4 +123,10 @@ function M.reload_file(file)
   return dofile(file)
 end
 
+function M.save_and_reload_current_buf()
+  local file = vim.api.nvim_buf_get_name(0)
+  vim.cmd("write")
+  return M.reload_file(file)
+end
+
 return M

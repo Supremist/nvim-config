@@ -1,5 +1,7 @@
 local M = {group = {}}
 
+--TODO vim.api.nvim_exec_autocmds
+
 -- static groups crated on config load
 M._static_groups = {
   Default = true, -- same as vim.api.nvim_create_autocmd("Default", {clear = true})
