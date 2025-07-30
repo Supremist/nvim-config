@@ -23,6 +23,7 @@ function M.init()
       if vim.fn.argc() > 0 or vim.g.started_with_stdin then
         return
       end
+      M.rm_empty_shada()
       -- TODO Do not autoload if vim crashed last time
       local recent = M.list_all_recent()
       if #recent > 0 then
@@ -276,6 +277,40 @@ function M.is_restorable(buffer)
   end
 
   return true
+end
+
+---Remove all empty temporary shada files
+---@param basename_re string | nil: shada file name regexp, default is 'main'
+---@return table: file names that were removed
+function M.rm_empty_shada(basename_re)
+  basename_re = basename_re or 'main'
+  local pattern = basename_re .. '%.shada%.tmp%.%a'
+  local shada_dir = vim.fn.stdpath('state') .. '/shada/'
+  local handle = vim.uv.fs_scandir(shada_dir)
+  if not handle then
+    vim.notify("rm_empty_shada: Could not open directory: " .. shada_dir, vim.log.levels.ERROR)
+    return {}
+  end
+
+  local deleted = {}
+  while true do
+    local filename, ftype = vim.uv.fs_scandir_next(handle)
+    if not filename then break end
+
+    if ftype == 'file' and string.match(filename, pattern) then
+      local fullpath = vim.fs.joinpath(shada_dir, filename)
+      local stat = vim.uv.fs_stat(fullpath)
+      if stat and stat.size == 0 then
+        vim.uv.fs_unlink(fullpath)
+        table.insert(deleted, filename)
+      end
+    end
+  end
+
+  if #deleted > 0 then
+    vim.notify("Shada.tmp.x files removed: \n" .. table.concat(deleted, '\n'), vim.log.levels.DEBUG)
+  end
+  return deleted
 end
 
 M.init()
