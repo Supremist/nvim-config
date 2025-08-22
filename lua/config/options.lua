@@ -24,6 +24,7 @@ opt.updatetime = 2000
 
 opt.number = true
 editor.set_hybridnumber(true)
+opt.cursorline = true
 
 opt.list = true
 opt.showbreak="↪"
@@ -31,6 +32,9 @@ opt.listchars="tab: ⎯→,nbsp:␣,lead:•,multispace:•,trail:•,extends:�
 opt.virtualedit="block,onemore"
 
 opt.sessionoptions="buffers,curdir,folds,help,tabpages,winsize,terminal,skiprtp" -- winpos,resize
+
+-- exclude -_ from default
+-- opt.iskeyword = "@,48-57,192-255,^-"
 
 opt.fileformats="unix,dos"
 -- Undo persistence

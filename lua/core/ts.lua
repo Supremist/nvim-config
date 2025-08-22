@@ -72,6 +72,63 @@ function M.get_smallest_node(range)
   return root:descendant_for_range(range[1], range[2], range[3], range[4])
 end
 
+function M.get_subword_range(range, offset)
+  -- Delimiters - a set of characters, that can't be a part of subword
+  -- Determine searching range:
+  --   Search backward two times for delimiter groups before cursor pos: 
+  --     vim.fn.searchpos([delimiters]+, 'bnW')
+  --   From that point lazy iterate over matches of word patterns
+end
+
+----- TEST
+----- positions vim's `w` will move to
+-- local myVariableName = FOO_BAR_BAZ
+-- ^     ^              ^ ^
+
+-- positions spider's `w` will move to
+-- local myVariableName = FOO_BAR_BAZ
+-- ^     ^ ^       ^    ^ ^   ^   ^
+
+-- -- positions vim's `w` will move to
+-- if foo:find("%d") and foo == bar then print("[foo] has" .. bar) end
+-- ^  ^  ^^   ^  ^^  ^   ^   ^  ^   ^    ^    ^  ^  ^ ^  ^ ^  ^  ^ ^  -> 21
+
+-- positions spider's `w` will move to
+-- if foo:find("%d") and foo == bar then print("[foo] has" .. bar) end
+-- ^  ^   ^      ^   ^   ^   ^  ^   ^    ^       ^    ^    ^  ^    ^  -> 14
+-- WTFuck, UPPERlower, TrIckYCaSe, УкрОборонПром, 1234, #f383ab, 3.23, 0b00, Test, 0B11, 0xf1b2, 0X1Fa0
+
+
+function M.search()
+  local word_patterns = {
+    {'CamelCase', '\\u\\l+'}, -- 1 uppercase, >1 lowercase
+    {'UPPERCASE', '\\u+\\l@!'}, -- >1 uppercase, no lowercase
+    {'lowercase', '\\l+'},
+    {'hex_digit', '%(\\#|<0[xXbB])\\x+'},
+    {'digit', '\\d+'},
+  }
+
+  local pattern = M.vm_pattern_to_utf8(M.or_pattern(word_patterns))
+
+  -- шщч
+  -- vim.print(pattern)
+  local pos = vim.fn.searchpos(pattern, 'bp')
+  local name = word_patterns[pos[3]-1][1]
+  return {pos[1], pos[2], name}
+end
+
+function M.get_matching_range()
+  -- local delimiters   =   [[\v\C[[:space:]\n\r]+]]
+  local delimiters = [[\v\C(%$)|(%^)|([[:space:]\n\r]+)]]
+  local cursor_pos = vim.api.nvim_win_get_cursor(0)
+  local pos = vim.fn.searchpos(delimiters, 'bcW', cursor_pos[1]-1)
+  pos = vim.fn.searchpos(delimiters, 'bW', cursor_pos[1]-1)
+  -- vim.api.nvim_win_set_cursor(0, cursor_pos)
+  -- pos = vim.fn.searchpos(delimiters, 'W', cursor_pos[1]+1)
+  -- pos = vim.fn.searchpos(delimiters, 'bW', cursor_pos[1])
+  return pos
+end
+
 
 -- 1. Find smallest node, that fully contains selection range
 -- 2. Walk into desired direction. Get next candidate node
@@ -100,12 +157,63 @@ function M.test()
   local pos = vim.api.nvim_win_get_cursor(0)
   local range = TSRange.new(buf, pos[1]-1, pos[2], pos[1]-1, pos[2])
   local node = M.get_smallest_node(range)
+  vim.print(node:type())
   -- vim.print(node:range())
   local iter = iter_leaf(node, "forward")
   node = iter()
   -- vim.print(node:range())
   local parent_range = {node:range()}
   M.highlight_glance(parent_range, buf)
+end
+
+---comment Convert Very magic pattern from asci to utf8 format
+---@param pattern string vim very magic pattern string
+---@return string result vim very magic pattern with utf8 support
+function M.vm_pattern_to_utf8(pattern)
+  local char_classes = {
+    ['\\a'] = '[[:lower:][:upper:]]',
+    ['\\l'] = '[[:lower:]]',
+    ['\\u'] = '[[:upper:]]',
+    ['\\p'] = '[[:print:]]',
+    ['\\s'] = '[[:space:]]',
+    ['\\S'] = '[^[:space:]]',
+    ['\\d'] = '[[:digit:]]',
+    ['\\x'] = '[[:xdigit:]]',
+    -- {'alnum', '[[:lower:][:upper:][:digit:]]'},
+  }
+
+  for ascii_class, utf8_class in pairs(char_classes) do
+    pattern = pattern:gsub(ascii_class, utf8_class)
+  end
+  return pattern
+end
+
+---@alias NamePatternPair { [1]: string, [2]: string }
+---@param named_patterns NamePatternPair[]
+---@return string composed_pattern
+function M.or_pattern(named_patterns)
+  assert(#named_patterns > 0 and #named_patterns <= 9)
+  local patterns = {}
+  for i, pair in ipairs(named_patterns) do
+    patterns[i] = '('..pair[2]..')'
+  end
+  return [[\v\C]]..table.concat(patterns, '|')
+end
+
+
+local Search = {}
+--- SearchLayer - bind keys to:
+--- next
+--- previous
+--- toggle_direction
+--- highlight_all
+--- jump
+---
+
+function Search.next()
+end
+
+function Search.previous()
 end
 
 return M

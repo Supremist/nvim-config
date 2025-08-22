@@ -283,8 +283,8 @@ M.plugins["LuaSnip"] = Keymaps.parse {
 }
 
 M.plugins["neoscroll.nvim"] = Keymaps.parse ({
-  {"nv", "<C-u>", {'scroll', {'-vim.wo.scroll', 'true', '30'}}, "Smooth up"},
-  {"nv", "<C-d>", {'scroll', {' vim.wo.scroll', 'true', '30'}}, "Smooth down"}
+  {"nv", "<C-u>", {'scroll', {'-vim.wo.scroll', 'true', '20'}}, "Smooth up"},
+  {"nv", "<C-d>", {'scroll', {' vim.wo.scroll', 'true', '20'}}, "Smooth down"}
 }, {name = "Scroll", manual = true})
 
 M.plugins["vim-illuminate"] = Keymaps.parse {
