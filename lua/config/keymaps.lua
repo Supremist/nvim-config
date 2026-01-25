@@ -134,6 +134,25 @@ M.global = Keymaps.parse {
   {"i", "<C-H>", "<C-w>", "delete previous word"}, -- <C-BS> is <C-H> because of terminal app
   {"i", "<C-w>", "<ESC><C-w>", "window menu from insert mode"},
 
+-- Advanced word navigation
+  {"n", "w", function()
+    local search = require("core.ts").current_search
+    if not search then
+      return "w"
+    end
+    search:next()
+  end, "Next occurance in current search", expr=true
+  },
+
+  {"n", "b", function()
+    local search = require("core.ts").current_search
+    if not search then
+      return "b"
+    end
+    search:previous()
+  end, "Previous occurance in current search", expr=true
+  },
+
 --Leader
   {"n", "<L>ra", W("core.main").reload(), "Reload all config"},
   {"n", "<L>rf", function() require("core.mod").save_and_reload_current_buf() end, "Reload file"},

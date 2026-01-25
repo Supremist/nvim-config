@@ -107,14 +107,39 @@ function M.search()
     {'hex_digit', '%(\\#|<0[xXbB])\\x+'},
     {'digit', '\\d+'},
   }
+  return M.get_match(word_patterns, {direction = "forward"})
+end
 
-  local pattern = M.vm_pattern_to_utf8(M.or_pattern(word_patterns))
-
-  -- шщч
-  -- vim.print(pattern)
-  local pos = vim.fn.searchpos(pattern, 'bp')
-  local name = word_patterns[pos[3]-1][1]
-  return {pos[1], pos[2], name}
+---@alias NamePatternPair { [1]: string, [2]: string }
+---@param named_patterns NamePatternPair[]
+---@param opts { direction: Direction, wrap: boolean, current: boolean}
+function M.get_match(named_patterns, opts)
+  opts = vim.tbl_deep_extend("force", {direction = "forward", wrap = false, current = false}, opts or {})
+  local pattern = M.vm_pattern_to_utf8(M.or_pattern(named_patterns))
+  local flags = "w" and opts.wrap or "W"
+  local bg_pos, end_pos
+  if opts.current then
+    if opts.direction == "forward" then
+      end_pos = vim.fn.searchpos(pattern, "ce" ..flags)
+      bg_pos  = vim.fn.searchpos(pattern, "cbp"..flags)
+    else
+      bg_pos  = vim.fn.searchpos(pattern, "cbp"..flags)
+      end_pos = vim.fn.searchpos(pattern, "cen"..flags)
+    end
+  else
+    if opts.direction == "forward" then
+      bg_pos  = vim.fn.searchpos(pattern, "p"..flags)
+      end_pos = vim.fn.searchpos(pattern, "cen"..flags)
+    else
+      end_pos = vim.fn.searchpos(pattern, "be"..flags)
+      bg_pos  = vim.fn.searchpos(pattern, "cbp"..flags)
+    end
+  end
+  if not bg_pos or bg_pos[1] == 0 then
+    return
+  end
+  local name = named_patterns[bg_pos[3]-1][1]
+  return {bg_pos[1], bg_pos[2], end_pos[1], end_pos[2]+1, name}
 end
 
 function M.get_matching_range()

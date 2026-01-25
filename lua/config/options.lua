@@ -33,7 +33,7 @@ opt.virtualedit="block,onemore"
 
 opt.sessionoptions="buffers,curdir,folds,help,tabpages,winsize,terminal,skiprtp" -- winpos,resize
 
--- exclude -_ from default
+-- exclude -_ from default keyword chars
 -- opt.iskeyword = "@,48-57,192-255,^-"
 
 opt.fileformats="unix,dos"
